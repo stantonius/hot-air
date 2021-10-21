@@ -7,10 +7,10 @@
 # https://learnxinyminutes.com/docs/yaml/
 
 title: A Technical Hobbyists Blog
-description: Posts related to AI and IoT. Maybe Blockchain, Web3. /* ToDo: insert more buzzwords */
+description: Posts related to AI and IoT. Maybe Blockchain, Web3. /# ToDo: insert more buzzwords
 github_username: stantonius
 # you can comment the below line out if your repo name is not different than your baseurl
-# github_repo: "hot-air"
+github_repo: "hot-air"
 
 # OPTIONAL: override baseurl and url if using a custom domain
 # Note: leave out the trailing / from this value. 
