@@ -10,7 +10,7 @@ title: A Technical Hobbyists Blog
 description: "Posts related to AI and IoT. Maybe Blockchain, Web3. #ToDo: insert more buzzwords"
 github_username: stantonius
 # you can comment the below line out if your repo name is not different than your baseurl
-github_repo: "hot-air"
+github_repo: "home"
 
 # OPTIONAL: override baseurl and url if using a custom domain
 # Note: leave out the trailing / from this value. 
@@ -35,7 +35,7 @@ url: "https://stantonius.github.io" # the base hostname & protocol for your site
 #
 # 3. You must replace the parameter `baseurl` in _action_files/settings.ini with the same value as you set here but WITHOUT QUOTES.
 #
-baseurl: "/hot-air" # the subpath of your site, e.g. "/blog".
+baseurl: "/home" # the subpath of your site, e.g. "/blog".
 
 # Github and twitter are optional:
 minima:
