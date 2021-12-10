@@ -1,1 +1,1 @@
-Sitemap: https://stantonius.github.io/hot-air/sitemap.xml
+Sitemap: https://stantonius.github.io/home/sitemap.xml
