@@ -94,7 +94,13 @@ Note that Potential is the same as Gravitaional Potential Energy - ie. when an o
 
 If I took anything away from this project, it is the following:
 
-* Do not think of Ohm's Law as $$V=IR$$ but rather $$I=V/R$$
+Do not think of Ohm's Law as 
+
+$$V=IR$$ 
+
+but rather 
+
+$$I=V/R$$
 
 
 Current flows from high voltage potential (ie. positive end of battery) to lower voltage potential (ground, 0 volts). This water-and-pipe analogy is massively helpful.
@@ -153,7 +159,10 @@ $$P = VI$$
 * 1 W = 1 Joule/second
 * Interestingly: $$1 HP = 746W$$
 
-**Energy** on the other hand is the **total amount of work done** over a period of time - it is **power over time**. $$E = P*t$$
+**Energy** on the other hand is the **total amount of work done** over a period of time - it is **power over time**. 
+
+$$E = P*t$$
+
 * The unit of Energy is the **Joule**, which based on the definition above is 1W per second
 * It is usually measured in kiloWatt hours (kWh) on our hydro bill
 * **1 V = 1 J of energy done by 1 coulomb of charge**
@@ -174,13 +183,21 @@ Wire gauge is quite important, and this is one area that adds to the cost unexpe
 * According to [Wires, connectors and current - what you need to know as a drone builder - Guides - DroneTrest](https://www.dronetrest.com/t/wires-connectors-and-current-what-you-need-to-know-as-a-drone-builder/1342), an 18 AWG wire can carry up to 30A, whereas 22 AWG is limited to 10A.
 
 The general formula for calculating the max amperage for a wire is:
+
 					$$Amps = \text{cross sectional area } (mm^2) \times 25$$
+					
 Resistance per metre:
+
 					$$ \text{Resistance per meter} = 0.0168 / \text{ cross sectional area } (0.0168 / mm^2)$$
+					
 Voltage drop per metre:
+
 					$$ \text{Voltage drop per meter} = (current \times 0.0168)/ \text{ cross sectional area } ((current x 0.0168) / mm^2) $$
+					
 Power loss per metre:
+
 					$$ \text{Power loss per meter} = (current^2) \times 0.0168)/ \text{ cross sectional area } ((current^2) \times 0.0168) / mm^2) $$
+					
 
 #### Connecting Wires Together
 
@@ -287,7 +304,7 @@ Upcoming blogs will also:
 ## Personal Development Outcomes
 * I can write a bit of c++ code
 * I can write a bit of Dart/Flutter code
-* I can use Github Actions and XX
+* I can use Github Actions and fastlane
 * I know a lot more about electricity (and thus how the modern world operates)
 * I can solder
 * I can use MQTT and Node-Red
