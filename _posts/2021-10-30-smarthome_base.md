@@ -184,19 +184,19 @@ Wire gauge is quite important, and this is one area that adds to the cost unexpe
 
 The general formula for calculating the max amperage for a wire is:
 
-					$$Amps = \text{cross sectional area } (mm^2) \times 25$$
+$$Amps = \text{cross sectional area } (mm^2) \times 25$$
 					
 Resistance per metre:
 
-					$$ \text{Resistance per meter} = 0.0168 / \text{ cross sectional area } (0.0168 / mm^2)$$
+$$ \text{Resistance per meter} = 0.0168 / \text{ cross sectional area } (0.0168 / mm^2)$$
 					
 Voltage drop per metre:
 
-					$$ \text{Voltage drop per meter} = (current \times 0.0168)/ \text{ cross sectional area } ((current x 0.0168) / mm^2) $$
+$$ \text{Voltage drop per meter} = (current \times 0.0168)/ \text{ cross sectional area } ((current x 0.0168) / mm^2) $$
 					
 Power loss per metre:
 
-					$$ \text{Power loss per meter} = (current^2) \times 0.0168)/ \text{ cross sectional area } ((current^2) \times 0.0168) / mm^2) $$
+$$ \text{Power loss per meter} = (current^2) \times 0.0168)/ \text{ cross sectional area } ((current^2) \times 0.0168) / mm^2) $$
 					
 
 #### Connecting Wires Together
