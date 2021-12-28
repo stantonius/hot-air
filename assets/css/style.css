@@ -484,4 +484,10 @@ pre code { font-size: 15px !important; }
 
 p code { font-size: 19px; }
 
+figure { display: block; margin: 20px; /* adjust as needed */ text-align: center; }
+
+figure img { max-width: 100%; vertical-align: top; }
+
+figure figcaption { text-align: center; font-style: italic; }
+
 /*# sourceMappingURL=style.css.map */
