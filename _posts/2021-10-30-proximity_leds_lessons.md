@@ -1,6 +1,6 @@
 ---
-title: "Starting a Custom Smart Home with ESP32-controlled LEDS"
-description: "My Computer Science/IoT/Flutter Capstone project"
+title: "Lessons and Notes - Proximity-triggered LEDs"
+description: "A collection of notes and learnings from my Capstone project"
 layout: post
 toc: true
 hide: false
@@ -9,39 +9,12 @@ show_tags: true
 categories: [IoT, Microcomputing, Flutter]
 ---
 
-# Starting a Custom Smart Home with ESP32-controlled LEDS
+# Lessons and Notes - Proximity-triggered LEDs
 
-I am *finally* taking the advice from others - this post marks a starting point for my tech writing journey.
-
-## Brief Project Overview
-We recently moved into a new house. I got the idea of making some ambient lights in the spare room from [Andreas Speiss' Raspberry Pi Server video](https://youtu.be/a6mjt8tWUws) - thanks Andreas and Google for the Youtube video recommendation. Its now 2.5 months later...
-
-The tools used would be:
-* My Android Pixel 4 phone (as a Bluetooth beacon)
-	* A custom Flutter app acts as the beacon
-* A Raspberry Pi 4 8GB home server
-	* IOTStack running the necessary services
-* WS2812B LEDs (Neopixels)
-* ESP32 controller
-
-<p align="center">
-<img src="https://storage.googleapis.com/craigstanton-public-assets/images/smarthome/smarthome_landscape_23Oct2021.png"/>
-</p>
-
-The idea: as I walked into the spare room where my workstation is, the ESP32 would recognize I was in the room and turn on the lights. When I left, they turn off.
-
-<p align="center">
-<img align="center" src="https://storage.googleapis.com/craigstanton-public-assets/images/smarthome/smarthome_objective_23Oct2021.png"/>
-</p>
-
-I thought the above would be straightforward. Lol. Made me think about this tweet:
-
-https://twitter.com/seanjtaylor/status/1445945021010624512?s=20
-
-Upon reflection, I had no real business trying this as my ack of computer science was exposed early on in the project - but a little stubornness and perserverence got me through it.
+A random collection of concepts that I took away from this project
 
 ## TLDR
-This project was my crash course in computer science, low-level programming, app development, electrical circuit theory, and app development. Massively complicated for someone like me.
+This project was my crash course in computer science, low-level programming, app development, electrical circuit theory, and app development. In hindsight, it was quite complicated for someone like me, who has never worked with embedded systems (actual hardware) before.
 
 The project was expensive, definitely time consuming, incredibly frustrating at times, and yet may have been one of the most rewarding things I can remember doing. 
 
@@ -184,19 +157,19 @@ Wire gauge is quite important, and this is one area that adds to the cost unexpe
 
 The general formula for calculating the max amperage for a wire is:
 
-					$$Amps = \text{cross sectional area } (mm^2) \times 25$$
+$$Amps = \text{cross sectional area } (mm^2) \times 25$$
 					
 Resistance per metre:
 
-					$$ \text{Resistance per meter} = 0.0168 / \text{ cross sectional area } (0.0168 / mm^2)$$
-					
-Voltage drop per metre:
+$$ \text{Resistance per meter} = 0.0168 / \text{ cross sectional area } (0.0168 / mm^2)$$
 
-					$$ \text{Voltage drop per meter} = (current \times 0.0168)/ \text{ cross sectional area } ((current x 0.0168) / mm^2) $$
+Voltage drop per metre
+
+$$ \text{Voltage drop per meter} = (current \times 0.0168)/ \text{ cross sectional area } ((current x 0.0168) / mm^2) $$
 					
 Power loss per metre:
 
-					$$ \text{Power loss per meter} = (current^2) \times 0.0168)/ \text{ cross sectional area } ((current^2) \times 0.0168) / mm^2) $$
+$$ \text{Power loss per meter} = (current^2) \times 0.0168)/ \text{ cross sectional area } ((current^2) \times 0.0168) / mm^2) $$
 					
 
 #### Connecting Wires Together
@@ -234,6 +207,18 @@ So in this new design, if we have two wires in parallel - 1 feeding the protoboa
 
 Well we know that an object's resistance is (basically) constant. Since energy cannot be created or destroyed, and voltage and resistance are constant, with Ohm's Law we can deduce that the current will halve between the two wires (assuming their resistances are the same).
 
+#### Prototyping
+
+The initial testing and design was done using a standard breadboard. In reading some of the forums discussing Neopixels, I was made aware that sending high amounts of current through a breadboard is really discouraged (and even dangerous). The estimated max current (**ampacity**) through a regular breadboard seems to be around **1A**.
+
+##### Protoboard
+
+A solderable breadboard with embedded channels (wires) is the better approach to prototype once you have designed and tested the initial layout. 
+
+It was difficult to find an answer on the max ampacity for a protoboard. According to this old forum [Adafruit customer service forums • View topic - Perma-proto board ampacity](https://forums.adafruit.com/viewtopic.php?f=19&t=61250), the ptotoboards power lines are 32 mil wide. When using [this trace width calculator](https://www.digikey.ca/en/resources/conversion-calculators/conversion-calculator-pcb-trace-width) to estimate the voltage drop and heat produced, it suggested that for a 5C temperature increase I would only see a 0.05V drop (thereby suggesting this setup was relatively safe?) 
+
+![[Pasted image 20211016204955.png]]
+
 ### C++
 
 Because I chose to use the Arduino (a C++ derivative) language instead of Python, I had to get up to speed with C++ (something that has proven very difficult, but quite rewarding). Below are some of my oberservations as I *tried* to pick up the language:
@@ -269,6 +254,12 @@ I used the [FastLED](https://fastled.io/) Arduino library to configure the LEDs 
 * Colours were off and I still can't explain why. However I do see all of the colours represented when I run a rainbow script - therefore, there is a 
 * These series of Youtube videos were excellent and they explained some of the basics of colour theory
 	* The one thing I took away is that the first number in the Hue colour system is a continuous 0-255 rolling 
+
+Some notes on setting up the WS2812B LEDs:
+
+* You CANNOT attach the data wire in any place other than the start of a strip. This caused many hours of troubleshooting, as I had soldered the wires to the second LED in the string as the first one's copper pads were too small for the 18 AWG wire. However once I clipped off the first LED, the programme worked
+* The data pulse output from the GPIO pin to the LEDs is extremely fast - so fast that my cheap multimeter could not process the output before it "disappeared". This also compounded my troubleshooting issue mentioned above as it looked like my program wasn't working correctly (since when testing the GPIO output, the multimeter wasn't reading any voltage) when in reality the issue was in the physical circuit.
+	* I assume that since we are powering the LED strips with external power, the data wire simply set which LEDs are to turn on via a quick pulse, but the sustained power is provided by the external source and thus the data output is only needed for an extremely quick pulse.
 
 ### Flutter App
 

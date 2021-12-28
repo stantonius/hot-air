@@ -9,3 +9,17 @@
 
 // If you want to turn off dark background for syntax highlighting, comment or delete the below line.
 @import "minima/fastpages-dracula-highlight"; 
+
+figure {
+    display: block;
+    margin: 20px; /* adjust as needed */
+    text-align: center;
+}
+figure img {
+    max-width: 100%;
+    vertical-align: top;
+}
+figure figcaption {
+    text-align: center;
+    font-style: italic;
+}
