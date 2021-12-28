@@ -162,8 +162,13 @@ $$Amps = \text{cross sectional area } (mm^2) \times 25$$
 Resistance per metre:
 
 $$ \text{Resistance per meter} = 0.0168 / \text{ cross sectional area } (0.0168 / mm^2)$$
+<<<<<<< HEAD:_posts/2021-10-30-proximity_leds_lessons.md
 
 Voltage drop per metre
+=======
+					
+Voltage drop per metre:
+>>>>>>> 9bd14e895c18cc3f9d71953ca3787165f2a68a24:_posts/2021-10-30-smarthome_base.md
 
 $$ \text{Voltage drop per meter} = (current \times 0.0168)/ \text{ cross sectional area } ((current x 0.0168) / mm^2) $$
 					
