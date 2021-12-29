@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Managing Geofence events with Riverpod | A Technical Hobbyists Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Managing Geofence events with Riverpod" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="How I used the Flutter Riverpod library to manage Geofence events" />
+<meta property="og:description" content="How I used the Flutter Riverpod library to manage Geofence events" />
+<link rel="canonical" href="https://stantonius.github.io/home/flutter/riverpod/2021/12/24/riverpod_geofence.html" />
+<meta property="og:url" content="https://stantonius.github.io/home/flutter/riverpod/2021/12/24/riverpod_geofence.html" />
+<meta property="og:site_name" content="A Technical Hobbyists Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-12-24T00:00:00-06:00" />
+<script type="application/ld+json">
+{"datePublished":"2021-12-24T00:00:00-06:00","url":"https://stantonius.github.io/home/flutter/riverpod/2021/12/24/riverpod_geofence.html","@type":"BlogPosting","headline":"Managing Geofence events with Riverpod","dateModified":"2021-12-24T00:00:00-06:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/flutter/riverpod/2021/12/24/riverpod_geofence.html"},"description":"How I used the Flutter Riverpod library to manage Geofence events","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/home/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://stantonius.github.io/home/feed.xml" title="A Technical Hobbyists Blog" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYM0GN6Q4W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZYM0GN6Q4W');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/home/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/home/">A Technical Hobbyists Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/home/about/">About Me</a><a class="page-link" href="/home/search/">Search</a><a class="page-link" href="/home/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Managing Geofence events with Riverpod</h1><p class="page-description">How I used the Flutter Riverpod library to manage Geofence events</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-12-24T00:00:00-06:00" itemprop="datePublished">
+        Dec 24, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      6 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/home/categories/#Flutter">Flutter</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#Riverpod">Riverpod</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#managing-geofence-events-with-riverpod">Managing Geofence events with Riverpod</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#code">Code</a></li>
+<li class="toc-entry toc-h2"><a href="#solution">Solution</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#1-stream-changes--state">1. Stream Changes &lt;&gt; State</a></li>
+<li class="toc-entry toc-h3"><a href="#set-the-initial-geofence-status">Set the initial Geofence Status</a></li>
+<li class="toc-entry toc-h3"><a href="#2-turn-on-ble-and-mqtt">2. Turn on BLE and MQTT</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#conclusion">Conclusion</a></li>
+<li class="toc-entry toc-h2"><a href="#flutter-tips">Flutter Tips</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#how-do-you-test-a-geofence-in-an-emulator">How do you test a Geofence in an emulator?</a></li>
+<li class="toc-entry toc-h3"><a href="#how-can-you-see-the-lifecycle-events-when-testing">How can you see the Lifecycle Events when testing?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul><h1 id="managing-geofence-events-with-riverpod">
+<a class="anchor" href="#managing-geofence-events-with-riverpod" aria-hidden="true"><span class="octicon octicon-link"></span></a>Managing Geofence events with Riverpod</h1>
+
+<p>As described in the blog <a href="https://stantonius.github.io/home/iot/microcomputing/flutter/2021/12/22/proximity_leds_main.html">Proximity-triggered LEDs</a>, my Android phone is able to advertize as a beacon that can be used by other systems in the house to track its proximity.</p>
+
+<p>However, given that I try to be very security conscious, one of the problems I came across is how to prevent the beacon from broadcasting away from our house. Additionally, restricting Flutter events only when in a specific location will also help with battery life.</p>
+
+<p>I was able to use Riverpod state management library to turn on/off Bluetooth Low Energy advertising and MQTT connections when I enter/leave the zone around my house.</p>
+
+<h2 id="code">
+<a class="anchor" href="#code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code</h2>
+<p>The code for this app is a work in progress, but can be found <a href="https://github.com/stantonius/flutter_smart_home_app">here</a></p>
+
+<p>Note this project used the awesome <a href="https://pub.dev/packages/geofence_service">geofence_service</a> plugin and a lot of the code is borrowed from the examples in this library.</p>
+
+<h2 id="solution">
+<a class="anchor" href="#solution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Solution</h2>
+<p>The Riverpod code was integrated into the <code class="language-plaintext highlighter-rouge">geofence.dart</code> file to solution the following tasks:</p>
+<ol>
+  <li>Update a state when geofence status changes</li>
+  <li>Turn BLE and MQTT on if geofence status is “ENTER”, and turn them off if status is “LEAVE”</li>
+</ol>
+
+<h3 id="1-stream-changes--state">
+<a class="anchor" href="#1-stream-changes--state" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Stream Changes &lt;&gt; State</h3>
+<p>Near the top of the <code class="language-plaintext highlighter-rouge">geofence.dart</code> file, you can see we have made 3 <code class="language-plaintext highlighter-rouge">StreamController</code>s.</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">// example of one of the StreamController</span>
+
+<span class="n">StreamController</span><span class="o">&lt;</span><span class="n">GeofenceStatus</span><span class="o">&gt;</span> <span class="n">_geofenceStreamController</span> <span class="o">=</span> <span class="n">StreamController</span><span class="o">&lt;</span><span class="n">GeofenceStatus</span><span class="o">&gt;();</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>This is where I got caught up. <code class="language-plaintext highlighter-rouge">StreamController</code> is not a Riverpod class, and yet I was looking for solutions to this state problem exclusively within Riverpod. However Riverpod is just an (excellent) tool to facilitate state management - it doesn’t have all the answers (it wasn’t designed to replace all base classes provided by Dart)</p>
+</blockquote>
+
+<p><code class="language-plaintext highlighter-rouge">StreamController</code> is effectively a <em>container</em> that holds the stream values. But on its own it is useless. We need to make a connection between when the phone signals there has been a geofence change and the <code class="language-plaintext highlighter-rouge">StreamController</code>. This is done in 2 parts:</p>
+
+<ol>
+  <li>Create a <code class="language-plaintext highlighter-rouge">_onGeofenceStatusChanged()</code> callback function that <em>binds the geofence change to the <code class="language-plaintext highlighter-rouge">StreamController</code> sink</em>. In this case we are only storing the <code class="language-plaintext highlighter-rouge">GeofenceStatus</code>, but we could store others (such as distance to geofence).</li>
+</ol>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span> <span class="n">_onGeofenceStatusChanged</span><span class="o">(</span>
+    <span class="n">Geofence</span> <span class="n">geofence</span><span class="o">,</span>
+    <span class="n">GeofenceRadius</span> <span class="n">geofenceRadius</span><span class="o">,</span>
+    <span class="n">GeofenceStatus</span> <span class="n">geofenceStatus</span><span class="o">,</span>
+    <span class="n">Location</span> <span class="n">location</span><span class="o">)</span> <span class="n">async</span> <span class="o">{</span>
+  <span class="n">print</span><span class="o">(</span><span class="s">'geofence: </span><span class="si">$geofence</span><span class="s">'</span><span class="o">);</span>
+  <span class="n">print</span><span class="o">(</span><span class="s">'geofenceRadius: </span><span class="si">$geofenceRadius</span><span class="s">'</span><span class="o">);</span>
+  <span class="n">print</span><span class="o">(</span><span class="s">'geofenceStatus: </span><span class="si">${geofenceStatus.toString()}</span><span class="s">'</span><span class="o">);</span>
+  <span class="n">_geofenceStreamController</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">geofenceStatus</span><span class="o">);</span> 	<span class="c1">//this is the binding</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ol>
+  <li>Use the Riverpod <code class="language-plaintext highlighter-rouge">StreamProvider</code> class, to <em>link</em> any changes from the stream <em>to any ref that is watching for changes</em>
+</li>
+</ol>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">final</span> <span class="n">geofenceStreamProvider</span> <span class="o">=</span> <span class="n">AutoDisposeStreamProvider</span><span class="o">&lt;</span><span class="n">GeofenceStatus</span><span class="o">&gt;((</span><span class="n">ref</span><span class="o">)</span> <span class="o">{</span>
+	<span class="n">ref</span><span class="o">.</span><span class="na">onDispose</span><span class="o">(()</span> <span class="o">{</span>
+		<span class="n">_geofenceStreamController</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+	<span class="o">});</span>
+	<span class="c1">// update another state object</span>
+  <span class="k">return</span> <span class="n">_geofenceStreamController</span><span class="o">.</span><span class="na">stream</span><span class="o">;</span>
+<span class="o">});</span>
+
+<span class="c1">//....</span>
+
+<span class="kd">class</span> <span class="nc">GeofenceDetails</span> <span class="kd">extends</span> <span class="n">ConsumerWidget</span> <span class="o">{</span>
+  <span class="kd">const</span> <span class="n">GeofenceDetails</span><span class="o">({</span><span class="n">Key</span><span class="o">?</span> <span class="n">key</span><span class="o">})</span> <span class="o">:</span> <span class="k">super</span><span class="o">(</span><span class="nl">key:</span> <span class="n">key</span><span class="o">);</span>
+
+  <span class="nd">@override</span>
+  <span class="n">Widget</span> <span class="n">build</span><span class="o">(</span><span class="n">BuildContext</span> <span class="n">context</span><span class="o">,</span> <span class="n">WidgetRef</span> <span class="n">ref</span><span class="o">)</span> <span class="o">{</span>
+	<span class="c1">// below watches for any changes via the geofenceStreamProvider</span>
+    <span class="n">AsyncValue</span> <span class="n">geofenceState</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="na">watch</span><span class="o">(</span><span class="n">geofenceStreamProvider</span><span class="o">);</span>
+	  
+	<span class="c1">// do something with the asyncvalue</span>
+	 
+  <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<p>We now have a system that can update state for every geofence status change. Next is to turn the beacon or MQTT connections on or off depending on the geofence status.</p>
+
+<p>However we must tackle another item first - set the initial state when the app is loaded for the first time.</p>
+
+<h3 id="set-the-initial-geofence-status">
+<a class="anchor" href="#set-the-initial-geofence-status" aria-hidden="true"><span class="octicon octicon-link"></span></a>Set the initial Geofence Status</h3>
+
+<p>The way we handled this was to always assume the geofence status was <code class="language-plaintext highlighter-rouge">GeofenceStatus.EXIT</code> until the system overrides it. We used the callback system of the <code class="language-plaintext highlighter-rouge">geofence_service</code> plugin to set this status via the <code class="language-plaintext highlighter-rouge">.start</code> future.</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">WidgetsBinding</span><span class="o">.</span><span class="na">instance</span><span class="o">?.</span><span class="na">addPostFrameCallback</span><span class="o">((</span><span class="n">_</span><span class="o">)</span> <span class="o">{</span>
+	<span class="c1">// other callback bindings</span>
+  <span class="n">_geofenceService</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="n">_geofenceList</span><span class="o">).</span><span class="na">catchError</span><span class="o">(</span><span class="n">_onError</span><span class="o">).</span><span class="na">whenComplete</span><span class="o">(</span>
+        <span class="o">()</span> <span class="o">=&gt;</span> <span class="n">_geofenceStreamController</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">GeofenceStatus</span><span class="o">.</span><span class="na">EXIT</span><span class="o">));</span>
+	  	<span class="c1">// when the start future is complete, set the geofence state to EXIT</span>
+  <span class="o">}</span>
+</code></pre></div></div>
+
+<p>Now that we have an initial Geofence status that will update if we are within any of the geofences defined, we can set the BLE and MQTT properties.</p>
+
+<h3 id="2-turn-on-ble-and-mqtt">
+<a class="anchor" href="#2-turn-on-ble-and-mqtt" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Turn on BLE and MQTT</h3>
+
+<p>It turns out that when the app is loaded, the BLE and MQTT states need to be set in an <em>async</em> manner. Because we cannot actually use an <code class="language-plaintext highlighter-rouge">async</code> when setting the app state, we needed another approach.</p>
+
+<p>While not elegent, I settled on calling the <code class="language-plaintext highlighter-rouge">ProviderContainer</code> object to update the Provider state outside of a <code class="language-plaintext highlighter-rouge">ConsumerWidget</code> or another Provider. The <code class="language-plaintext highlighter-rouge">ProviderContainer</code> seems to be a wrapper class that houses all of the Providers and their states for the entire app.</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">// code from main.dart outlining the container for providers used in this app</span>
+
+<span class="kd">final</span> <span class="n">container</span> <span class="o">=</span> <span class="n">ProviderContainer</span><span class="o">();</span>
+
+<span class="c1">// permissions class</span>
+<span class="kd">final</span> <span class="n">permissions</span> <span class="o">=</span> <span class="n">SmartHomePermissions</span><span class="o">();</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">runApp</span><span class="o">(</span><span class="n">UncontrolledProviderScope</span><span class="o">(</span><span class="nl">container:</span> <span class="n">container</span><span class="o">,</span> <span class="nl">child:</span> <span class="n">MyApp</span><span class="o">()));</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><a href="https://github.com/rrousselGit/river_pod/issues/295#issuecomment-770368500">The author of Riverpod suggests</a> this is a possible (yet not recommended) solution to get access to the Provider state elsewhere in the UI (they go on to explain how you might approach this differently but I couldn’t wrap my head around this, and my solution below works). Regardless, the code below uses this provider <code class="language-plaintext highlighter-rouge">container</code> to read and set the BLE and MQTT states depending on the current Geofence status.</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span> <span class="n">_onGeofenceStatusChanged</span><span class="o">(</span>
+    <span class="n">Geofence</span> <span class="n">geofence</span><span class="o">,</span>
+    <span class="n">GeofenceRadius</span> <span class="n">geofenceRadius</span><span class="o">,</span>
+    <span class="n">GeofenceStatus</span> <span class="n">geofenceStatus</span><span class="o">,</span>
+    <span class="n">Location</span> <span class="n">location</span><span class="o">)</span> <span class="n">async</span> <span class="o">{</span>
+	<span class="c1">// some print statements</span>
+  <span class="n">_geofenceStreamController</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">geofenceStatus</span><span class="o">);</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">geofenceStatus</span> <span class="o">==</span> <span class="n">GeofenceStatus</span><span class="o">.</span><span class="na">ENTER</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">container</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">clientStateProvider</span><span class="o">.</span><span class="na">notifier</span><span class="o">).</span><span class="na">connect</span><span class="o">();</span>
+    <span class="n">container</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">beaconStateProvider</span><span class="o">.</span><span class="na">notifier</span><span class="o">).</span><span class="na">bleOnSwitch</span><span class="o">();</span>
+  <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">geofenceStatus</span> <span class="o">==</span> <span class="n">GeofenceStatus</span><span class="o">.</span><span class="na">EXIT</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">container</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">clientStateProvider</span><span class="o">.</span><span class="na">notifier</span><span class="o">).</span><span class="na">disconnect</span><span class="o">();</span>
+    <span class="n">container</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">beaconStateProvider</span><span class="o">.</span><span class="na">notifier</span><span class="o">).</span><span class="na">bleKillSwitch</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="conclusion">
+<a class="anchor" href="#conclusion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusion</h2>
+<p>I was able to leverage the awesome Riverpod library to make a basic yet functioning Flutter app that dynamically connects with the ESP32 and the Raspberry Pi through BLE and MQTT, respectively.</p>
+
+<p>Having spent a bit of time now with Flutter and state management, I have learnt to just follow what Remi (the creator of Riverpod) says when it comes to Flutter - and this Riverpod library, while quite opinionated, is ultimately very easy to use once you get the hang of it.</p>
+
+<h2 id="flutter-tips">
+<a class="anchor" href="#flutter-tips" aria-hidden="true"><span class="octicon octicon-link"></span></a>Flutter Tips</h2>
+<h3 id="how-do-you-test-a-geofence-in-an-emulator">
+<a class="anchor" href="#how-do-you-test-a-geofence-in-an-emulator" aria-hidden="true"><span class="octicon octicon-link"></span></a>How do you test a Geofence in an emulator?</h3>
+
+<p>All we need to be able to do is manipulate the device’s GPS coordinates. Its as simple as selecting the three dot icon beside the emulator, then selecting Location. Here you can enter whatever coordinates you want (just go to Google Maps and find your home coordinates - can be found in the URL) and then hit Send.</p>
+
+<figure>
+<img src="https://storage.googleapis.com/craigstanton-public-assets/images/smarthome/android_emulator_gps_coords.png">
+	
+</figure>
+
+<h3 id="how-can-you-see-the-lifecycle-events-when-testing">
+<a class="anchor" href="#how-can-you-see-the-lifecycle-events-when-testing" aria-hidden="true"><span class="octicon octicon-link"></span></a>How can you see the Lifecycle Events when testing?</h3>
+
+<p>It was extremely useful to print in the logs the Flutter lifecycle events when building this app. There is tonnes of documentation on how to set this up, however here is a brief overview for my own understanding.</p>
+
+<p>First, the main Stateful Widget must add the mixin <code class="language-plaintext highlighter-rouge">WidgetsBindingObserver</code> and immediately add the observer:</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="kd">class</span> <span class="nc">_MyHomePageState</span> <span class="kd">extends</span> <span class="n">ConsumerState</span><span class="o">&lt;</span><span class="n">MyHomePage</span><span class="o">&gt;</span>
+    <span class="k">with</span> <span class="n">WidgetsBindingObserver</span> <span class="o">{</span>
+  <span class="nd">@override</span>
+  <span class="kt">void</span> <span class="n">initState</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">super</span><span class="o">.</span><span class="na">initState</span><span class="o">();</span>
+    <span class="n">geofenceCallbacks</span><span class="o">();</span>
+	<span class="c1">// Add the observer</span>
+    <span class="n">WidgetsBinding</span><span class="o">.</span><span class="na">instance</span><span class="o">!.</span><span class="na">addObserver</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+    <span class="n">permissions</span><span class="o">.</span><span class="na">requestPermission</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="c1">// ...</span>
+	
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Once that is done, we can monitor lifecycle events by adding the following code. Note that we need to dispose as usual:</p>
+
+<div class="language-dart highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@override</span>
+  <span class="kt">void</span> <span class="n">dispose</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">WidgetsBinding</span><span class="o">.</span><span class="na">instance</span><span class="o">!.</span><span class="na">removeObserver</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+  	<span class="n">container</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">beaconStateProvider</span><span class="o">.</span><span class="na">notifier</span><span class="o">).</span><span class="na">bleKillSwitch</span><span class="o">();</span>
+  	<span class="k">super</span><span class="o">.</span><span class="na">dispose</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="nd">@override</span>
+  <span class="kt">void</span> <span class="n">didChangeAppLifecycleState</span><span class="o">(</span><span class="n">AppLifecycleState</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">super</span><span class="o">.</span><span class="na">didChangeAppLifecycleState</span><span class="o">(</span><span class="n">state</span><span class="o">);</span>
+    <span class="n">print</span><span class="o">(</span><span class="s">"App Lifecycle State: </span><span class="si">${state}</span><span class="s">"</span><span class="o">);</span>
+  <span class="o">}</span>
+</code></pre></div></div>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="stantonius/home"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/home/flutter/riverpod/2021/12/24/riverpod_geofence.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/home/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/home/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/home/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Posts related to AI, IoT, Flutter. Maybe Blockchain, Web3. #ToDo: insert more buzzwords</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/stantonius" title="stantonius"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/thecraigman22" title="thecraigman22"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
