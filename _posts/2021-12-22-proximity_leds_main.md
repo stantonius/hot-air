@@ -276,3 +276,7 @@ It is important to note that given the above potential solutions, they will come
 </figure>
 
 If anyone wants to collaborate on this project going forward, give me a shout! 
+
+### Project References
+* https://github.com/filipsPL/cat-localizer
+* https://randomnerdtutorials.com/esp32-bluetooth-low-energy-ble-arduino-ide/
