@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Creating a Microservice Package Repo with Google Artifact Registry and Cloud Build | A Technical Hobbyists Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Creating a Microservice Package Repo with Google Artifact Registry and Cloud Build" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="How do you reuse code in multiple Python microservices without copying it?" />
+<meta property="og:description" content="How do you reuse code in multiple Python microservices without copying it?" />
+<link rel="canonical" href="https://stantonius.github.io/home/gcp/cloud%20build/artifact%20registry/microservices/2022/03/26/Microservices_GAR_CloudBuild.html" />
+<meta property="og:url" content="https://stantonius.github.io/home/gcp/cloud%20build/artifact%20registry/microservices/2022/03/26/Microservices_GAR_CloudBuild.html" />
+<meta property="og:site_name" content="A Technical Hobbyists Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-26T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2022-03-26T00:00:00-05:00","url":"https://stantonius.github.io/home/gcp/cloud%20build/artifact%20registry/microservices/2022/03/26/Microservices_GAR_CloudBuild.html","@type":"BlogPosting","headline":"Creating a Microservice Package Repo with Google Artifact Registry and Cloud Build","dateModified":"2022-03-26T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/gcp/cloud%20build/artifact%20registry/microservices/2022/03/26/Microservices_GAR_CloudBuild.html"},"description":"How do you reuse code in multiple Python microservices without copying it?","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/home/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://stantonius.github.io/home/feed.xml" title="A Technical Hobbyists Blog" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYM0GN6Q4W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZYM0GN6Q4W');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/home/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/home/">A Technical Hobbyists Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/home/about/">About Me</a><a class="page-link" href="/home/search/">Search</a><a class="page-link" href="/home/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Creating a Microservice Package Repo with Google Artifact Registry and Cloud Build</h1><p class="page-description">How do you reuse code in multiple Python microservices without copying it?</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-03-26T00:00:00-05:00" itemprop="datePublished">
+        Mar 26, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      11 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/home/categories/#GCP">GCP</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#Cloud Build">Cloud Build</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#Artifact Registry">Artifact Registry</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#Microservices">Microservices</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#creating-a-microservice-package-repo-with-google-artifact-registry-and-cloud-build">Creating a Microservice Package Repo with Google Artifact Registry and Cloud Build</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#quick-guide-to-python-package-management-for-microservices-with-google-artifact-registry">Quick Guide to Python Package Management for Microservices with Google Artifact Registry</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#1-create-repository">1. Create Repository</a></li>
+<li class="toc-entry toc-h3"><a href="#2-authenticate-with-google-artifact-registry">2. Authenticate with Google Artifact Registry</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#standard-authentication">Standard Authentication</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#3-upload-the-package-to-the-repository">3. Upload the Package to the Repository</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#alternative-authentication-using-m1-mac">Alternative Authentication (using M1 Mac)</a></li>
+<li class="toc-entry toc-h4"><a href="#another-cheeky-authentication-method">Another cheeky Authentication Method</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#4-install-a-package-hosted-in-artifact-registry">4. Install a Package hosted in Artifact Registry</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#actively-providing-credentials">Actively Providing Credentials</a>
+<ul>
+<li class="toc-entry toc-h5"><a href="#building-with-docker-locally">Building with Docker locally</a></li>
+<li class="toc-entry toc-h5"><a href="#requirementstxt">requirements.txt</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h4"><a href="#using-cloud-build-default-credentials">Using Cloud Build Default Credentials</a>
+<ul>
+<li class="toc-entry toc-h5"><a href="#using-private-packages">Using Private Packages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#discussion">Discussion</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#background">Background</a></li>
+<li class="toc-entry toc-h3"><a href="#gcp-artifact-registry">GCP Artifact Registry</a></li>
+<li class="toc-entry toc-h3"><a href="#artifact-registry-authentication">Artifact Registry Authentication</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#summary">Summary</a></li>
+<li class="toc-entry toc-h2"><a href="#helpful-resources">Helpful Resources</a></li>
+</ul>
+</li>
+</ul><h1 id="creating-a-microservice-package-repo-with-google-artifact-registry-and-cloud-build">
+<a class="anchor" href="#creating-a-microservice-package-repo-with-google-artifact-registry-and-cloud-build" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating a Microservice Package Repo with Google Artifact Registry and Cloud Build</h1>
+
+<h2 id="quick-guide-to-python-package-management-for-microservices-with-google-artifact-registry">
+<a class="anchor" href="#quick-guide-to-python-package-management-for-microservices-with-google-artifact-registry" aria-hidden="true"><span class="octicon octicon-link"></span></a>Quick Guide to Python Package Management for Microservices with Google Artifact Registry</h2>
+<p>Straight to what will help people the most - code with as little text as possible. Longer discussion below.</p>
+
+<ul>
+  <li>Assumes:
+    <ul>
+      <li>You have generated a <code class="language-plaintext highlighter-rouge">wheel</code> file for package distribution</li>
+      <li>Cloud Build used for CI/CD</li>
+      <li>Authenticated to correct GCP project</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="1-create-repository">
+<a class="anchor" href="#1-create-repository" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Create Repository</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcloud artifacts repositories create REPOSITORY_NAME --repository-format=python --location=REGION --description="Repo description"
+</code></pre></div></div>
+
+<p>To make your life easier, set defaults for repository and region:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcloud config set artifacts/repository REPOSITORY_NAME
+gcloud config set artifacts/location REGION
+</code></pre></div></div>
+
+<h3 id="2-authenticate-with-google-artifact-registry">
+<a class="anchor" href="#2-authenticate-with-google-artifact-registry" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Authenticate with Google Artifact Registry</h3>
+
+<p>Required if <strong>not running in a GCP-managed container service</strong> like Cloud Build (ie. developing and testing <em>locally</em>).</p>
+
+<h4 id="standard-authentication">
+<a class="anchor" href="#standard-authentication" aria-hidden="true"><span class="octicon octicon-link"></span></a>Standard Authentication</h4>
+<p>As per the <a href="https://cloud.google.com/artifact-registry/docs/python/store-python">offical docs</a>, you must update <code class="language-plaintext highlighter-rouge">.pypirc</code> and <code class="language-plaintext highlighter-rouge">pip.conf</code> to utilize <strong>keyring</strong> authentication. Let GCP tell you what to include by entering the following in the command line:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># if you have set defaults for repository, region, and project
+gcloud artifacts print-settings python
+
+# if defaults not set
+gcloud artifacts print-settings python --project=PROJECT \
+--repository=REPOSITORY --location=LOCATION
+</code></pre></div></div>
+
+<p>If you’ve never uploaded a package to Pypi or similar before, you probably won’t have either <code class="language-plaintext highlighter-rouge">.pypirc</code> or <code class="language-plaintext highlighter-rouge">pip.conf</code> on your machine, so you must create them.</p>
+
+<p>Developing on a Windows machine using a virtual environment, this is where I created them (note you can create globally or locally as well)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\user\.pypic
+C:\Users\user\.virtualenvs\VIRTUALENV_NAME\pip.conf
+</code></pre></div></div>
+
+<p>If you do not already have <code class="language-plaintext highlighter-rouge">twine</code> and the GCP library for keychain validation, install both via the command below:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip install twine keyrings.google-artifactregistry-auth
+</code></pre></div></div>
+
+<p>The offical docs recommend you run <code class="language-plaintext highlighter-rouge">keyring --list-backends</code> to check keyring works. They have a screenshot of what the output looks like. <strong>Don’t be concerned with the order of the output</strong> - it might be that the order matters (and why the Mac didn’t work), but unless you’re well versed in keychain then you can ignore this.</p>
+
+<h3 id="3-upload-the-package-to-the-repository">
+<a class="anchor" href="#3-upload-the-package-to-the-repository" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Upload the Package to the Repository</h3>
+<p>In the package directory where the <code class="language-plaintext highlighter-rouge">/dist</code> subdirectory is (that contains the wheel), run the <code class="language-plaintext highlighter-rouge">twine</code> command below:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>twine upload --repository-url https://REGION-python.pkg.dev/PROJECT_ID/REPOSITORY_NAME/ dist/*
+</code></pre></div></div>
+
+<p>Note that Artifact Registry does not allow package uploads of the same version, so if you get a <code class="language-plaintext highlighter-rouge">HTTPError: 400 Bad Request from https://REGION-python.pkg.dev/PROJECT_ID/REPOSITORY_NAME Bad Request</code>, you must either create a new package version <em>or</em> delete the current package via the console (there is probably a <code class="language-plaintext highlighter-rouge">gcloud</code> command to do that as well)</p>
+
+<p>If this command returns the error  <code class="language-plaintext highlighter-rouge">EOFError: EOF when reading a line</code>, GCP does not recognize this as an authenticated request. Thus you may need the alternative authentication as described in the section below.</p>
+
+<h4 id="alternative-authentication-using-m1-mac">
+<a class="anchor" href="#alternative-authentication-using-m1-mac" aria-hidden="true"><span class="octicon octicon-link"></span></a>Alternative Authentication (using M1 Mac)</h4>
+<p>Create a service account that exclusively is for accessing Artifacts (I assigned a newly created service account the role <code class="language-plaintext highlighter-rouge">Artifact Registry Reader</code>). Download its keys to a json file.</p>
+
+<p>Unlike the above scenario, we need to print the repository configuration by including the <em>path to the service account credentials</em>. If you had already done this and had authentication issues, you will need to do again.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gcloud artifacts print-settings python --project=PROJECT \
+--repository=REPOSITORY --location=LOCATION \
+--json-key=KEY-FILE
+</code></pre></div></div>
+
+<p>For Mac, here is where I created them (I created these files at the user level, not within a virtual env)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$HOME/.pypirc
+$HOME/.config/pip/pip.conf
+</code></pre></div></div>
+
+<p>Note that I had to <em>create</em> the <code class="language-plaintext highlighter-rouge">/pip</code> directory as well in <code class="language-plaintext highlighter-rouge">.config/</code></p>
+
+<p>Now to upload the package to Artifact Registry, you must include your credentials as <strong>base64-encoded</strong> in the request.</p>
+
+<blockquote>
+  <p>How do you Base64-encode your credentials in a json file? You literally encode the <strong>whole file</strong>. In UNIX you do this via  <code class="language-plaintext highlighter-rouge">cat key.json | base64</code></p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>twine upload --repository-url https://_json_key_base64:XXXXXXXXXX@REGION-python.pkg.dev/PROJECT_ID/REPOSITORY_NAME dist/*
+</code></pre></div></div>
+
+<p>Notice the <code class="language-plaintext highlighter-rouge">_json_key_base64</code> username and the <code class="language-plaintext highlighter-rouge">:</code> and <code class="language-plaintext highlighter-rouge">@</code> separators, and also the credentials <code class="language-plaintext highlighter-rouge">XXXXXX</code> will be very long</p>
+
+<p>If you are ever prompted for a username and password following this command, just hit Enter. If the credentials worked, you will still be asked for a username and password, but you leave them blank.</p>
+
+<h4 id="another-cheeky-authentication-method">
+<a class="anchor" href="#another-cheeky-authentication-method" aria-hidden="true"><span class="octicon octicon-link"></span></a>Another cheeky Authentication Method</h4>
+<p>Thanks to [this great post] by Lukas Karlsson, there is also another <em>undocumented</em> authentication method which uses the <code class="language-plaintext highlighter-rouge">gcloud auth print-access-token</code> command to get an OAuth2 access token. With this method, the upload URL becomes:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>twine upload --repository-url https://oauth2accesstoken:XXXXXXXXX@REGION-python.pkg.dev/PROJECT_ID/REPOSITORY_NAME dist/*
+</code></pre></div></div>
+
+<p>Where <code class="language-plaintext highlighter-rouge">XXXXXX</code> is the output of the command <code class="language-plaintext highlighter-rouge">gcloud auth print-access-token</code></p>
+
+<p>One thing I noticed about this method was you <strong>don’t need any of the keyring/pip.conf/.pypic setup</strong>. You only need <code class="language-plaintext highlighter-rouge">twine</code>.</p>
+
+<h3 id="4-install-a-package-hosted-in-artifact-registry">
+<a class="anchor" href="#4-install-a-package-hosted-in-artifact-registry" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Install a Package hosted in Artifact Registry</h3>
+<p>This comes back to the original purpose of all of this work - installing a private package multiple times into each of our microservices. The CI/CD tool used is Google’s Cloud Build.</p>
+
+<p>There are two ways to install an Artifact Package.</p>
+
+<h4 id="actively-providing-credentials">
+<a class="anchor" href="#actively-providing-credentials" aria-hidden="true"><span class="octicon octicon-link"></span></a>Actively Providing Credentials</h4>
+<p>We can use the same credential methods we just discussed, only this time to download. You will see that nothing changes in the URLs except for the addition of  <code class="language-plaintext highlighter-rouge">/simple</code> to the endpoint</p>
+
+<p>Using a service account:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip install --index-url https://https://_json_key_base64:XXXXXXXXX@REGION-python.pkg.dev/PROJECT_ID/REPOSITORY_NAME/simple/ PACKAGE_NAME
+</code></pre></div></div>
+
+<p>Using the OAuth2 method:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip install --index-url https://https://oauth2accesstoken:XXXXXXXXX@REGION-python.pkg.dev/PROJECT_ID/REPOSITORY_NAME/simple/ PACKAGE_NAME
+</code></pre></div></div>
+
+<h5 id="building-with-docker-locally">
+<a class="anchor" href="#building-with-docker-locally" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building with Docker locally</h5>
+<p>If you want to use a Docker container <em>and test locally</em>, you will need to set the <code class="language-plaintext highlighter-rouge">GOOGLE_APPLICATION_CREDENTIALS</code> for the Docker container (thanks to Kenji Koshikawa’s <a href="https://dev.to/koshilife/manage-private-python-packages-using-artifact-registry-google-cloud-30kh">post</a> that made this very clear). In Kenji’s article, you can see in the <code class="language-plaintext highlighter-rouge">Dockerfile</code> config that they set this environment variable to the path to the service account credentials <em>on the local machine</em> (remember: the credentials are only needed <strong>during the build</strong> to install the package; they’re not needed to run the container after setup)</p>
+
+<pre><code class="language-Dockerfile">ENV GOOGLE_APPLICATION_CREDENTIALS "key.json"
+
+# ...
+
+RUN pip install keyrings.google-artifactregistry-auth
+RUN pip install --no-cache-dir -r requirements.txt
+</code></pre>
+
+<h5 id="requirementstxt">
+<a class="anchor" href="#requirementstxt" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">requirements.txt</code>
+</h5>
+<p>The syntax for installing a package from Artifact Registry using <code class="language-plaintext highlighter-rouge">requirements.txt</code> is:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>--extra-index-url https://REGION-python.pkg.dev/PROJECT_ID/REPOSITORY_NAME/simple
+sample-repository==0.0.1
+</code></pre></div></div>
+
+<h4 id="using-cloud-build-default-credentials">
+<a class="anchor" href="#using-cloud-build-default-credentials" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Cloud Build Default Credentials</h4>
+<p>Cloud Build tells us that its service account credentials <a href="https://cloud.google.com/functions/docs/writing/specifying-dependencies-python#private_dependencies_from_artifact_registry">are automatically authorized</a>. In order to take advantage of this, you need to first run the <strong>Python Cloud Builder</strong> and use <code class="language-plaintext highlighter-rouge">pip</code> to install our private repo from Artifact Registry <strong>into <code class="language-plaintext highlighter-rouge">/workspace</code></strong>. The gist of how this was set up is <a href="https://gist.github.com/stantonius/957e8b336b714d8db63480fb3d1a6480">here</a>.</p>
+
+<p>If for some reason you need to use another persistent volume outside of <code class="language-plaintext highlighter-rouge">/workspace</code>, you would need to add an intermediary step to the Build to <em>copy</em> the installed package into <code class="language-plaintext highlighter-rouge">/workspace</code>. An example of this <code class="language-plaintext highlighter-rouge">cloudbuild.yaml</code> can be found <a href="https://gist.github.com/stantonius/0de6d0c32ffbcd818b233b28762fd84e">here</a>.</p>
+
+<p>Initially I had tried to <code class="language-plaintext highlighter-rouge">pip install</code> the package artifact <em>as part of the Dockerfile</em>. This was a huge time sink until I realized that the <strong>Docker Builder container does not have access to the Cloud Build service account credentials</strong>. What this meant was if in the <code class="language-plaintext highlighter-rouge">Dockerfile</code> we tried to <code class="language-plaintext highlighter-rouge">pip install</code> our private package, we would get the same <code class="language-plaintext highlighter-rouge">EOFError: EOF when reading a line</code> error, telling us we needed to authenticate some way.</p>
+
+<p>Also note that the directory name <strong><code class="language-plaintext highlighter-rouge">/workspace</code> is not accessible inside the Dockerfile</strong>. Instead, the <em>current directory is <code class="language-plaintext highlighter-rouge">/workspace</code></em> and is accessible via <code class="language-plaintext highlighter-rouge">.</code></p>
+
+<pre><code class="language-Dockerfile"># ...
+WORKDIR /code
+COPY /workspace/installs /code       # /workspace not accessible
+COPY ./installs /code                # this will work - '.' is /workspace
+</code></pre>
+
+<h5 id="using-private-packages">
+<a class="anchor" href="#using-private-packages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Private Packages</h5>
+<p>You just saw we installed private packages into a non-standard directory. In order to use them, you need to point the <code class="language-plaintext highlighter-rouge">PYTHONPATH</code> environment variable to the directory that contains these packages.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ENV PYTHONPATH="/code/installs" 
+</code></pre></div></div>
+
+<p>For anyone who is unaware what <code class="language-plaintext highlighter-rouge">PYTHONPATH</code> does (like I was), it is another place that Python will look for packages. It is evaluated <em>before</em> the Python interpreter runs so that all packages and modules can be imported at any point when running Python.</p>
+
+<p>The complete <code class="language-plaintext highlighter-rouge">Dockerfile</code> is below:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM python:3.9-slim-bullseye
+
+WORKDIR /code
+
+ENV PYTHONUNBUFFERED 1
+
+ENV PYTHONPATH="/code/installs"
+
+COPY . /code/
+
+RUN pip install --upgrade -r /code/requirements.txt
+
+CMD ["uvicorn", "main:api", "--host", "0.0.0.0", "--port", "8080"]
+</code></pre></div></div>
+
+<p>Because we installed the package into the <code class="language-plaintext highlighter-rouge">/workspace/</code>, the <code class="language-plaintext highlighter-rouge">COPY</code> step brings it into the image and thus we set the <code class="language-plaintext highlighter-rouge">PYTHONPATH</code> to the directory</p>
+
+<p>That is it. The package is now accessible and usable.</p>
+
+<h2 id="discussion">
+<a class="anchor" href="#discussion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Discussion</h2>
+<p>A more thorough walkthrough of the observations and rationale.</p>
+
+<h3 id="background">
+<a class="anchor" href="#background" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background</h3>
+<p>I am building a product using GCP-hosted services. The initial design consists of 3 <strong>microservices</strong>: a Slack chatbot, a processing engine, and a messaging platform (to message the user back)</p>
+
+<p><img src="https://storage.googleapis.com/afore-public-assets/images/sample_architecture.svg" alt=""></p>
+
+<p>What I didn’t realize was one significant drawback of a microservice architecture - Don’t Repeat Yourself (DRY) problems. It seems obvious now - these microservice environments are completely isolated. If each of the services interact with the same database and use the same SQLAlchemy models, surely we would end up with functions and classes that <em>could</em> be used in all of the containers.</p>
+
+<p>A quick search revealed that this is a very common dilemma and is a known drawback of microservice architecture. A summarization of the solutions to this problem are below:</p>
+<ol>
+  <li>DO repeat yourself - copy code to each of the containers (either manually or via a script or third-party service)</li>
+  <li>Abstracting the repeating code as a microservice itself. This was not ideal since what would need to be sent between services was tokens, which I wanted to avoid (despite being behind a VPC). Furthermore, this code I wanted in each of the containers was a mixture of functions and classes, not really designed as a standalone service.</li>
+  <li>Creating a private Python package that can be installed on each of the services (just like any other package)</li>
+</ol>
+
+<h3 id="gcp-artifact-registry">
+<a class="anchor" href="#gcp-artifact-registry" aria-hidden="true"><span class="octicon octicon-link"></span></a>GCP Artifact Registry</h3>
+
+<p>The Google Artifact Registry (GAR) stores the private Python package. You may have heard of Google Container Registry before - GAR is the evolution of that service, allowing storage and access of not only containers, but also code packages as well.</p>
+
+<p>I decided to use this GCP service thinking it made sense given the integration of this service with tools I was using regularly: Cloud Build and Run.</p>
+
+<blockquote>
+  <p>Difference between a Python module, library, package can be found <a href="https://learnpython.com/blog/python-modules-packages-libraries-frameworks/">here</a></p>
+</blockquote>
+
+<p>Why not Github or Pypi?</p>
+
+<p>Fair question - both of those solutions would also work and might even be less of a headache. However I a) wanted to try GAR and b) using this service means one less set of credentials to manage (or so I thought*) since Cloud Build and Cloud Run are automatically authenticated for the Artifact , but GAR allows for everything to be managed by GCP (and because I am using Cloud Build and Cloud Run, there is no additional authentication that is needed)</p>
+
+<blockquote>
+  <p>* This is true if you are running or building containers <em>within</em> the GCP services Cloud Build and Cloud Run. However, developing locally is a different story</p>
+</blockquote>
+
+<p>There are other useful features of GAR that are beyond the scope of this post as they benefit big teams (ie. the ability to restrict access to different repos based on GCP user roles)</p>
+
+<h3 id="artifact-registry-authentication">
+<a class="anchor" href="#artifact-registry-authentication" aria-hidden="true"><span class="octicon octicon-link"></span></a>Artifact Registry Authentication</h3>
+
+<p>This, plain and simple, was an unpleasant experience. This keyring approach that is recommended in <a href="https://cloud.google.com/artifact-registry/docs/python/store-python#setup-venv">the docs</a> just never worked for me on the M1 Mac. And even using a Windows machine, it seemed like a lot of boilerplate (maybe this is standard for artifact/package management?). All I can say is this seemed like a lot more work than needed (and what it was worth, given ultimately I could have got the same features using a private Github repo).</p>
+
+<p>Developing locally or in a Docker container required constant authentication or transfering of credentials to the image. The only way you can really take advantage of the Cloud Build <a href="https://cloud.google.com/functions/docs/writing/specifying-dependencies-python#private_dependencies_from_artifact_registry">automatic authorization</a> is if you Cloud Build emulators locally, which I really dislike using because the responsiveness of these containers is so slow compared to local development using virtual environments or Docker containers.</p>
+
+<h2 id="summary">
+<a class="anchor" href="#summary" aria-hidden="true"><span class="octicon octicon-link"></span></a>Summary</h2>
+<p>Highlights:</p>
+<ul>
+  <li>Microservices that share code elements can use a package repo as one alternative to copy/pasting code in different locations; packages for repeat installation can be stored in Github, Pypi, or Google Artifact Registry</li>
+  <li>Storing a private Python package in Google Artifact Registry is difficult and not user friendly. However from the time spent on this, it does look like other artifact registries <em>may</em> also be similar.</li>
+  <li>The solution to develop locally depended on the machine used: with the M1 Mac, a dedicated service account and password authentication was the only solution that worked for me; on Windows I was able to avoid any additional steps other than those in the offical docs</li>
+</ul>
+
+<p>Is Artifact Registry worth the hassle, especially as a one-person band right now? No, probably not, especially given the Githib repo option. However I will probably continue to use it now that I have figured this out, so long as I can use bash scripts to automate all of this credential encoding when developing locally. I am glad however, that my intuition on how to manage microservice code distribution is aligned to how others have approached this common problem.</p>
+
+<h2 id="helpful-resources">
+<a class="anchor" href="#helpful-resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Helpful Resources</h2>
+<ul>
+  <li>Excellent post from <a href="https://dev.to/koshilife/manage-private-python-packages-using-artifact-registry-google-cloud-30kh">Kenji Koshikawa</a> who also took this Artifact Python package approach to solve the microservice code copy problem</li>
+  <li>A Cloud Build Github Trigger solution by <a href="https://lukwam.medium.com/python-packages-in-artifact-registry-d2f63643d2b7">Lukas Karlsson</a>. They have some cool scripts and also a helpful undocumented trick on how to authenticate in an easier way</li>
+</ul>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="stantonius/home"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/home/gcp/cloud%20build/artifact%20registry/microservices/2022/03/26/Microservices_GAR_CloudBuild.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/home/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/home/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/home/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Posts related to AI, IoT, Flutter. Maybe Blockchain, Web3. #ToDo: insert more buzzwords</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/stantonius" target="_blank" title="stantonius"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/thecraigman22" target="_blank" title="thecraigman22"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
