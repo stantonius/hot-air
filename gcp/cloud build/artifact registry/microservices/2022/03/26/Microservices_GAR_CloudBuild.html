@@ -108,7 +108,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      11 min read
+      12 min read
     
 </span></p>
 
@@ -225,10 +225,14 @@ gcloud artifacts print-settings python --project=PROJECT \
 
 <p>If you’ve never uploaded a package to Pypi or similar before, you probably won’t have either <code class="language-plaintext highlighter-rouge">.pypirc</code> or <code class="language-plaintext highlighter-rouge">pip.conf</code> on your machine, so you must create them.</p>
 
-<p>Developing on a Windows machine using a virtual environment, this is where I created them (note you can create globally or locally as well)</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\user\.pypic
+<p>Developing on a Windows machine using a virtual environment, this is where I created them</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Users\user\.pypirc
 C:\Users\user\.virtualenvs\VIRTUALENV_NAME\pip.conf
 </code></pre></div></div>
+
+<blockquote>
+  <p><strong>Warning</strong>: I learnt the hard way that creating the <code class="language-plaintext highlighter-rouge">pip.conf</code> file globally is a <strong>horrible idea</strong> (as it checks the private repo for each package regardless of which project you are working on). Save yourself the headache and create this file <strong>in a virtual environment</strong> (you have no choice but to install <code class="language-plaintext highlighter-rouge">.pypirc</code> globally in <code class="language-plaintext highlighter-rouge">$HOME</code>)</p>
+</blockquote>
 
 <p>If you do not already have <code class="language-plaintext highlighter-rouge">twine</code> and the GCP library for keychain validation, install both via the command below:</p>
 
@@ -259,10 +263,14 @@ C:\Users\user\.virtualenvs\VIRTUALENV_NAME\pip.conf
 --json-key=KEY-FILE
 </code></pre></div></div>
 
-<p>For Mac, here is where I created them (I created these files at the user level, not within a virtual env)</p>
+<p>For Mac, here is where I created them (I created these files at the user level, not within a virtual env - this was a <strong>mistake</strong>)</p>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$HOME/.pypirc
 $HOME/.config/pip/pip.conf
 </code></pre></div></div>
+
+<blockquote>
+  <p>See my note earlier - creating <code class="language-plaintext highlighter-rouge">pip.conf</code> globally is a bad idea. Do it only in virtual envs</p>
+</blockquote>
 
 <p>Note that I had to <em>create</em> the <code class="language-plaintext highlighter-rouge">/pip</code> directory as well in <code class="language-plaintext highlighter-rouge">.config/</code></p>
 
