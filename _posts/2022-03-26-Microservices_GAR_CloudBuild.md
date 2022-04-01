@@ -48,11 +48,13 @@ gcloud artifacts print-settings python --project=PROJECT \
 
 If you've never uploaded a package to Pypi or similar before, you probably won't have either `.pypirc` or `pip.conf` on your machine, so you must create them.
 
-Developing on a Windows machine using a virtual environment, this is where I created them (note you can create globally or locally as well)
+Developing on a Windows machine using a virtual environment, this is where I created them
 ```
-C:\Users\user\.pypic
+C:\Users\user\.pypirc
 C:\Users\user\.virtualenvs\VIRTUALENV_NAME\pip.conf
 ```
+
+> **Warning**: I learnt the hard way that creating the `pip.conf` file globally is a **horrible idea** (as it checks the private repo for each package regardless of which project you are working on). Save yourself the headache and create this file **in a virtual environment** (you have no choice but to install `.pypirc` globally in `$HOME`)
 
 If you do not already have `twine` and the GCP library for keychain validation, install both via the command below:
 
@@ -84,11 +86,13 @@ gcloud artifacts print-settings python --project=PROJECT \
 --json-key=KEY-FILE
 ```
 
-For Mac, here is where I created them (I created these files at the user level, not within a virtual env)
+For Mac, here is where I created them (I created these files at the user level, not within a virtual env - this was a **mistake**)
 ```
 $HOME/.pypirc
 $HOME/.config/pip/pip.conf
 ```
+
+> See my note earlier - creating `pip.conf` globally is a bad idea. Do it only in virtual envs
 
 Note that I had to *create* the `/pip` directory as well in `.config/`
 
