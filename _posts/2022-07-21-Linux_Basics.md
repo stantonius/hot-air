@@ -11,13 +11,9 @@ metadata_key1: metadata_value1
 metadata_key2: metadata_value2
 ---
 
-
-
-# 2022-07-21-Linux_Basics
-
 I use Linux every day now - whether building a business using GCP cloud resources, or at home building a home server and smart home applications on the Raspberry Pi. 
 
-I have a confesion: I really don't fully understand it, and I overly rely on blind copy-pasta from Stackoverflow. 
+However - I have a confession: I really don't fully understand it, and I overly rely on blind copy-pasta from Stackoverflow. 
 
 This needs to change. Below are some of my ongoing notes on Linux fundamentals. Note that, simply due to the amount of time I spend on Linux machines, I have managed to pick up some of the basics. Therefore these are more for anyone who has some experience but could do with a reminder of other fundamentals.
 
