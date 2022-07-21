@@ -11,7 +11,7 @@ categories: [networking, computer_science]
 
 
 
-# 2022-07-20_Networking_Keys_Summary
+# 2022-07-20-Networking_Keys_Summary
 
 I just spent a bunch of time reading up and watching Youtube videos on networking (because when wokring with Proxmox, there is an assumption that you understand all of these concepts, which I do not). So below is a summary of what I have picked up.
 

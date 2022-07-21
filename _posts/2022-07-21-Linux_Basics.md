@@ -4,7 +4,6 @@ description: "I use Linux all the time now. I really don't know enough about it.
 layout: post
 toc: true
 comments: true
-image: images/some_folder/your_image.png
 hide: false
 search_exclude: false
 categories: [linux, computer_science]
@@ -14,7 +13,7 @@ metadata_key2: metadata_value2
 
 
 
-# 2022-07-21_Linux_Basics
+# 2022-07-21-Linux_Basics
 
 I use Linux every day now - whether building a business using GCP cloud resources, or at home building a home server and smart home applications on the Raspberry Pi. 
 
