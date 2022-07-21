@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Linux Basics | A Technical Hobbyists Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Linux Basics" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I use Linux all the time now. I really don’t know enough about it. This changes now" />
+<meta property="og:description" content="I use Linux all the time now. I really don’t know enough about it. This changes now" />
+<link rel="canonical" href="https://stantonius.github.io/home/linux/computer_science/2022/07/21/Linux_Basics.html" />
+<meta property="og:url" content="https://stantonius.github.io/home/linux/computer_science/2022/07/21/Linux_Basics.html" />
+<meta property="og:site_name" content="A Technical Hobbyists Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-07-21T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2022-07-21T00:00:00-05:00","url":"https://stantonius.github.io/home/linux/computer_science/2022/07/21/Linux_Basics.html","@type":"BlogPosting","headline":"Linux Basics","dateModified":"2022-07-21T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/linux/computer_science/2022/07/21/Linux_Basics.html"},"description":"I use Linux all the time now. I really don’t know enough about it. This changes now","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/home/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://stantonius.github.io/home/feed.xml" title="A Technical Hobbyists Blog" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYM0GN6Q4W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZYM0GN6Q4W');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/home/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/home/">A Technical Hobbyists Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/home/about/">About Me</a><a class="page-link" href="/home/search/">Search</a><a class="page-link" href="/home/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Linux Basics</h1><p class="page-description">I use Linux all the time now. I really don't know enough about it. This changes now</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-07-21T00:00:00-05:00" itemprop="datePublished">
+        Jul 21, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/home/categories/#linux">linux</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#computer_science">computer_science</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#2022-07-21-linux_basics">2022-07-21-Linux_Basics</a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#commands">Commands</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#general">General</a></li>
+<li class="toc-entry toc-h3"><a href="#navigation">Navigation</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#directories">Directories</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#bin">/bin</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#sbin">/sbin</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#boot">/boot</a></li>
+<li class="toc-entry toc-h3"><a href="#dev">/dev</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#sys">/sys</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#etc">/etc</a></li>
+<li class="toc-entry toc-h3"><a href="#home">/home</a></li>
+<li class="toc-entry toc-h3"><a href="#usr">/usr</a></li>
+<li class="toc-entry toc-h3"><a href="#var">/var</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#sudo">Sudo</a></li>
+<li class="toc-entry toc-h2"><a href="#users-and-groups">Users and Groups</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#commands-1">Commands</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#files-and-permissions">Files and Permissions</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#changing-permissions">Changing Permissions</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#numeric-permissions">Numeric Permissions</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#change-owner">Change Owner</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#resources">Resources</a></li>
+</ul>
+</li>
+</ul><h1 id="2022-07-21-linux_basics">
+<a class="anchor" href="#2022-07-21-linux_basics" aria-hidden="true"><span class="octicon octicon-link"></span></a>2022-07-21-Linux_Basics</h1>
+
+<p>I use Linux every day now - whether building a business using GCP cloud resources, or at home building a home server and smart home applications on the Raspberry Pi.</p>
+
+<p>I have a confesion: I really don’t fully understand it, and I overly rely on blind copy-pasta from Stackoverflow.</p>
+
+<p>This needs to change. Below are some of my ongoing notes on Linux fundamentals. Note that, simply due to the amount of time I spend on Linux machines, I have managed to pick up some of the basics. Therefore these are more for anyone who has some experience but could do with a reminder of other fundamentals.</p>
+
+<h2 id="commands">
+<a class="anchor" href="#commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>Commands</h2>
+
+<h3 id="general">
+<a class="anchor" href="#general" aria-hidden="true"><span class="octicon octicon-link"></span></a>General</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">man [command]</code>: (ie. <code class="language-plaintext highlighter-rouge">man ls</code>) shows you the <strong>manual</strong> of the command argument you supply
+    <ul>
+      <li>Note you press <code class="language-plaintext highlighter-rouge">q</code> to get rid of the manual info</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">ls -lha</code>: lists all files in current directory along with more info about those files with their file size in human-readable format, including all hidden files</li>
+  <li>
+<strong>Double tab</strong> for autocomplete when there are multiple files with the same query you have entered, to see all of those files listed</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mv [source] [target]</code>: the target argument can also rename the source file
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">cp</code> works the same way (including renaming of the file)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="navigation">
+<a class="anchor" href="#navigation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Navigation</h3>
+<ul>
+  <li>While <code class="language-plaintext highlighter-rouge">cd ..</code> moves up a directory, I wasn’t aware that <code class="language-plaintext highlighter-rouge">cd -</code> moves you back to the directory where you just were.</li>
+</ul>
+
+<h2 id="directories">
+<a class="anchor" href="#directories" aria-hidden="true"><span class="octicon octicon-link"></span></a>Directories</h2>
+<p>Instead of reading about this, you could watch <a href="https://youtu.be/85-o08kaje0">Christian at The Digital Life</a> explain these, with video timestamps for each of the major directories.</p>
+
+<p>Below are just some of the directories that exist but I have encountered recently and need to remember what they are.</p>
+
+<h3 id="bin">
+<a class="anchor" href="#bin" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">/bin</code>
+</h3>
+<p>Contains essential binaries (programs) that are ciritical for the system to run. Think <code class="language-plaintext highlighter-rouge">/bin/bash</code>,  <code class="language-plaintext highlighter-rouge">cp</code>, <code class="language-plaintext highlighter-rouge">ls</code> - all of these would need to be available in a situation where we needed to restore the system; they are critical programs that when absent, make the system unusable since most likely, boot scripts depend on these commands.</p>
+
+<p>Note, calling <code class="language-plaintext highlighter-rouge">ls</code> command actually calls the <code class="language-plaintext highlighter-rouge">/bin/ls</code> binary. This is because <code class="language-plaintext highlighter-rouge">/bin</code> is in the <code class="language-plaintext highlighter-rouge">$PATH</code> and therefore when you call <code class="language-plaintext highlighter-rouge">ls</code>, it searches all paths in <code class="language-plaintext highlighter-rouge">$PATH</code> to find the appropriate binary</p>
+
+<p>Also note - more and more, <code class="language-plaintext highlighter-rouge">/bin</code> is being moved to <code class="language-plaintext highlighter-rouge">/usr/bin</code>. SOme Linux distros only have symlinks in <code class="language-plaintext highlighter-rouge">/bin</code> referencing <code class="language-plaintext highlighter-rouge">/usr/bin</code>. The same is true for <code class="language-plaintext highlighter-rouge">/sbin</code>, etc.</p>
+
+<h4 id="sbin">
+<a class="anchor" href="#sbin" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">/sbin</code>
+</h4>
+<p>Similar to <code class="language-plaintext highlighter-rouge">/bin</code>; binaries needed in superuser mode</p>
+
+<h3 id="boot">
+<a class="anchor" href="#boot" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">/boot</code>
+</h3>
+<p>Just don’t touch.</p>
+
+<h3 id="dev">
+<a class="anchor" href="#dev" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">/dev</code>
+</h3>
+<p>Virtual directory that the kernel uses to communicates with <strong>devices</strong>, such as webcam, keyboard, hard drives etc.</p>
+
+<h4 id="sys">
+<a class="anchor" href="#sys" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">/sys</code>
+</h4>
+<p>Contains information about the devices in the <code class="language-plaintext highlighter-rouge">/dev</code> directory. So you would use <code class="language-plaintext highlighter-rouge">/sys</code> to query whether a device is on, its model #, etc.</p>
+
+<h3 id="etc">
+<a class="anchor" href="#etc" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">/etc</code>
+</h3>
+<p>Conatins system-wide configuration files (DNS clients, webservers). Also contains configuration files for <strong>users</strong> and <strong>groups</strong></p>
+
+<h3 id="home">
+<a class="anchor" href="#home" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">/home</code>
+</h3>
+<p>Every user has their own <code class="language-plaintext highlighter-rouge">/home</code> directory that is bespoke for them.</p>
+<ul>
+  <li>Except the <code class="language-plaintext highlighter-rouge">root</code> user - their home directory is <code class="language-plaintext highlighter-rouge">/home</code>
+</li>
+</ul>
+
+<h3 id="usr">
+<a class="anchor" href="#usr" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">/usr</code>
+</h3>
+<p>Doesn’t actually stand for user (users have their <code class="language-plaintext highlighter-rouge">/home</code> directory, but rather Unix-system Shared Resources.</p>
+
+<p>Contains apps and shared resources. Something like Firefox (an external, installed application) would be stored here.</p>
+
+<h3 id="var">
+<a class="anchor" href="#var" aria-hidden="true"><span class="octicon octicon-link"></span></a><code class="language-plaintext highlighter-rouge">/var</code>
+</h3>
+<p>Any files that are expected to grow in size.</p>
+
+<h2 id="sudo">
+<a class="anchor" href="#sudo" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sudo</h2>
+<p>Special command that allows you to act as <code class="language-plaintext highlighter-rouge">root</code> without having to log in as them</p>
+
+<h2 id="users-and-groups">
+<a class="anchor" href="#users-and-groups" aria-hidden="true"><span class="octicon octicon-link"></span></a>Users and Groups</h2>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">cat /etc/passwd</code>: lists all users, along with their default shell (which helps you see which users can run shell commands)
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">passwd</code> also works as a command to change passwords of a user</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">cat /etc/group</code>: lists all groups</li>
+</ul>
+
+<h3 id="commands-1">
+<a class="anchor" href="#commands-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Commands</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">su [username]</code>: allows you to log in as a user
+    <ul>
+      <li>type <code class="language-plaintext highlighter-rouge">exit</code> to log out</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">usermod</code>: modify attributes of the user
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">usermod -aG [groupname] [user]</code>: to add a user to a group. Note that without the <em>add</em> command <code class="language-plaintext highlighter-rouge">-a</code>, we would <em>replace</em> all groups that user already has.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="files-and-permissions">
+<a class="anchor" href="#files-and-permissions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Files and Permissions</h2>
+<p>Take the following example</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>drwxr-xr-x  4 craig admingroup     4096 Jul 20 21:30 Documents
+<span class="nt">-rw-------</span>  1 craig craig          1527 Jul 21 02:27 script.sh
+<span class="nt">-r-xr-----</span>  4 root  craig            46 Jul 20 21:30 test.txt
+</code></pre></div></div>
+
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">d</code> in the first column tells us this is a directory; if <code class="language-plaintext highlighter-rouge">-</code> then it is a file</li>
+  <li>The 4th column, even though <code class="language-plaintext highlighter-rouge">craig</code> is in this column, this is the <strong>group</strong> <code class="language-plaintext highlighter-rouge">craig</code>
+</li>
+  <li>Permissions are grouped in 3s. In this case, the first <code class="language-plaintext highlighter-rouge">Documents</code> directory has (in order):
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">rwx</code>: the file owner <em>user</em>  <code class="language-plaintext highlighter-rouge">craig</code> has read, write, and execute permissions</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">r-x</code>: the group <code class="language-plaintext highlighter-rouge">admingroup</code> only has read and execute</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">r-x</code>: everyone else has only read and write</li>
+    </ul>
+  </li>
+  <li>In the third file, the owner is <code class="language-plaintext highlighter-rouge">root</code> but the permissions for the owner are <code class="language-plaintext highlighter-rouge">r-x</code>. It turns out that for the root, this doesn’t matter. The root user always has all permissions by default
+    <ul>
+      <li>Also for this file, any member of the craig group can only read the file. Everyone else can’t even open the file</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="changing-permissions">
+<a class="anchor" href="#changing-permissions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Changing Permissions</h3>
+
+<p><strong><code class="language-plaintext highlighter-rouge">chmod</code></strong></p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">u</code>: user; aka file <strong>owner</strong>
+</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">g</code>: group</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">o</code>: all other users</li>
+</ul>
+
+<p>For example, to:</p>
+<ul>
+  <li>
+<strong>replace</strong> the group permissions of the <code class="language-plaintext highlighter-rouge">script.sh</code>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">chmod g=rwx script.sh</code></li>
+    </ul>
+  </li>
+  <li>
+<strong>update/add</strong> the group permissions:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">chmod g+rw script.sh</code></li>
+    </ul>
+  </li>
+  <li>
+<strong>remove</strong> the group permissions:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">chmod g-x script.sh</code></li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="numeric-permissions">
+<a class="anchor" href="#numeric-permissions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Numeric Permissions</h4>
+<p>Allow you to change the file permissions for all users &amp; groups in one command using the following key:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">r</span><span class="o">=</span>4
+<span class="nv">w</span><span class="o">=</span>2
+<span class="nv">x</span><span class="o">=</span>1
+</code></pre></div></div>
+
+<p>In order to change the permissions for the <code class="language-plaintext highlighter-rouge">script.sh</code> file, we could write:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">chmod </span>761 script.sh
+</code></pre></div></div>
+
+<p>Using the key above, this means: <code class="language-plaintext highlighter-rouge">u</code> will have <code class="language-plaintext highlighter-rouge">rwx</code> (4+2+1=7), <code class="language-plaintext highlighter-rouge">g</code> will have <code class="language-plaintext highlighter-rouge">rw-</code> (4+2=6), and <code class="language-plaintext highlighter-rouge">o</code> will have <code class="language-plaintext highlighter-rouge">--x</code></p>
+
+<h3 id="change-owner">
+<a class="anchor" href="#change-owner" aria-hidden="true"><span class="octicon octicon-link"></span></a>Change Owner</h3>
+<p><code class="language-plaintext highlighter-rouge">chown [user] [file]</code> or <code class="language-plaintext highlighter-rouge">chown [user:group] [file]</code></p>
+
+<p>Can add <code class="language-plaintext highlighter-rouge">-R</code> to make these ownership changes recursively</p>
+
+<h2 id="resources">
+<a class="anchor" href="#resources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources</h2>
+<ul>
+  <li>
+<a href="https://youtube.com/playlist?list=PLj-2elZxVPZ_E5cFhNrUa_BqWC8sfcH6q">Awesome Linux beginner Youtube series</a> by one of my favourite Youtubers Christian at <a href="https://www.youtube.com/c/TheDigitalLifeTech">The DIgital Life</a>
+</li>
+</ul>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="stantonius/home"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/home/linux/computer_science/2022/07/21/Linux_Basics.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/home/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/home/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/home/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Posts related to AI, GCP, IoT, Flutter. Maybe Blockchain, Web3. #ToDo: insert more buzzwords</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/stantonius" target="_blank" title="stantonius"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/thecraigman22" target="_blank" title="thecraigman22"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
