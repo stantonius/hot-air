@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Storage in Proxmox | A Technical Hobbyists Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Storage in Proxmox" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A brief overview of storage options in Proxmox" />
+<meta property="og:description" content="A brief overview of storage options in Proxmox" />
+<link rel="canonical" href="https://stantonius.github.io/home/proxmox/home_lab/smart_home/2022/07/27/Proxmox_Storage.html" />
+<meta property="og:url" content="https://stantonius.github.io/home/proxmox/home_lab/smart_home/2022/07/27/Proxmox_Storage.html" />
+<meta property="og:site_name" content="A Technical Hobbyists Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-07-27T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2022-07-27T00:00:00-05:00","url":"https://stantonius.github.io/home/proxmox/home_lab/smart_home/2022/07/27/Proxmox_Storage.html","@type":"BlogPosting","headline":"Storage in Proxmox","dateModified":"2022-07-27T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/proxmox/home_lab/smart_home/2022/07/27/Proxmox_Storage.html"},"description":"A brief overview of storage options in Proxmox","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/home/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://stantonius.github.io/home/feed.xml" title="A Technical Hobbyists Blog" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYM0GN6Q4W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZYM0GN6Q4W');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/home/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/home/">A Technical Hobbyists Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/home/about/">About Me</a><a class="page-link" href="/home/search/">Search</a><a class="page-link" href="/home/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Storage in Proxmox</h1><p class="page-description">A brief overview of storage options in Proxmox</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-07-27T00:00:00-05:00" itemprop="datePublished">
+        Jul 27, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/home/categories/#proxmox">proxmox</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#home_lab">home_lab</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#smart_home">smart_home</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#my-setup">My Setup</a></li>
+<li class="toc-entry toc-h2"><a href="#my-storage-conclusion">My storage conclusion</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#thoughts-on-zfs">Thoughts on ZFS</a></li>
+<li class="toc-entry toc-h3"><a href="#setting-up-zfs">Setting up ZFS</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#future-considerations">Future Considerations</a></li>
+</ul><p>Storage decisions in a Proxmox home lab has been the hardest decision for a newbie like me. It seems like everyone already fully understood the storage types, pros and cons, and had bought the appropriate hardware for their use case. There wasn’t much out there that discusses the storage in a way I could fully digest.</p>
+
+<p>It turns out, the reason I struggled so much to understand storage setup was because you need to search for storage setup recommendations <em>based on your setup and needs</em>. For example, most people setting up a home lab/server are doing it <strong>primarily as a NAS</strong>. This means that most are looking for help when they have <em>multiple drives</em> and are concerned with data <em>redundancy</em> - for them, searching for “Proxmox NAS storage options with multiple SSDs/HDDs” will get answers that aren’t particularly useful for me who is doing a home lab focused on IoT/smart home applications with hardware that is not condusive to ZFS-redundancy management (1x 500GB NVME, 1x 1TB SATA SSD, 1x 4TB HDD).</p>
+
+<p>There are a wide range of use cases for a home server that, as mentioned, will determine your ideal storage configuration. These include (but not limited to):</p>
+<ul>
+  <li>A home media server</li>
+  <li>A gaming server</li>
+  <li>Video and photo storage and editing</li>
+  <li>Serving a website or app</li>
+  <li>IoT/smart home (this is where mine sits)</li>
+</ul>
+
+<p>Unless you are prepared to spend tonnes of money on drives, memory, and a super-server CPU, your home lab cannot be all of these at the same time. Therefore in order to properly configure your storage, you need to know what the main function of your home lab will be. And this is quite frustrating as a newcomer, because often times we buy the hardware before we truly know what we want this system to be.</p>
+
+<h2 id="my-setup">
+<a class="anchor" href="#my-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>My Setup</h2>
+
+<p>For context, I have converted a gaming PC into my home lab. The purpose of the home lab is to run containers and VMs to <strong>manage smart home services</strong> - basically, it is an experimentation environment for coding. Eventually it will also serve as a machine-learning cloud environment, where I can run GPU-enabled deep learning experiments. I don’t watch many movies or TV shows, and I don’t do any video recording and editing (yet, maybe I am the next big Youtube star? Just need to start Youtubing…)</p>
+
+<p>The specs for my machine are:</p>
+<ul>
+  <li>
+<strong>CPU</strong>: AMD Ryzen 7 5800X 3.8 GHz 8-Core Processor</li>
+  <li>
+<strong>RAM</strong>: Crucial Ballistix RGB 32 GB (4 x 8 GB) DDR4-3600 CL16 Memory</li>
+  <li>
+<strong>Storage</strong>:
+    <ul>
+      <li>Samsung 970 Evo 500 GB M.2-2280 NVME Solid State Drive</li>
+      <li>Western Digital Black SN750 500 GB M.2-2280 NVME Solid State Drive</li>
+      <li>Samsung 870 QVO 1 TB 2.5” Solid State Drive</li>
+      <li>Western Digital Red Plus 4 TB 3.5” 5400RPM Internal Hard Drive</li>
+    </ul>
+  </li>
+  <li>
+<strong>Mobo</strong>: Asus TUF GAMING X570-PRO (WI-FI) ATX AM4 Motherboard</li>
+  <li>
+<strong>GPU</strong>: Asus GeForce RTX 3060 Ti 8 GB TUF GAMING OC Video Card</li>
+  <li>
+<strong>PSU</strong>: Gigabyte P750GM 750 W 80+ Gold Certified Fully Modular ATX Power Supply</li>
+</ul>
+
+<h2 id="my-storage-conclusion">
+<a class="anchor" href="#my-storage-conclusion" aria-hidden="true"><span class="octicon octicon-link"></span></a>My storage conclusion</h2>
+
+<p>To summarize, my priorities are:</p>
+<ul>
+  <li>Snapshot and backup capability (for the container and VM configurations)</li>
+  <li>Data backup of IoT sensor and motion-sensing images</li>
+  <li>Data processing speed</li>
+</ul>
+
+<p>Noticably missing here is data integrity and redundancy. I am not planning to store precious home movies and photos, nor am I storing edited and processed videos. None of the data is super critical - yes, it would be annoying if the drive with this data disappeared. However, as it stands now, nothing will be considered irreplacable.</p>
+
+<p>Therefore, here is where I have landed on storage setup:</p>
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">local</code> storage will continue to run the Proxmox hypervisor OS on the Samsung 970 Evo NVME SSD in the <code class="language-plaintext highlighter-rouge">ext4</code> file format</li>
+  <li>A new <code class="language-plaintext highlighter-rouge">zfs</code> single disk storage option for images, snapshots, and backups.</li>
+  <li>A second <code class="language-plaintext highlighter-rouge">zfs</code> single storage drive on the 4TB HDD to store security camera images and additional system backups</li>
+</ul>
+
+<h3 id="thoughts-on-zfs">
+<a class="anchor" href="#thoughts-on-zfs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Thoughts on ZFS</h3>
+<p>Initially I wasn’t going to bother with ZFS given my single drives and what I misinterpreted as high RAM usage. However, amazing posts <a href="https://www.reddit.com/r/Proxmox/comments/o66a8n/comment/h2qqn50/?utm_source=share&amp;utm_medium=web2x&amp;context=3">like this</a> emphasize that ZFS is still useful for single drives. Of course you miss out on data redundancy and correction, but you <strong>still get a lot of benefits</strong>.</p>
+
+<p>I was also cautious to use ZFS on NVME SSDs given its <a href="https://www.reddit.com/r/Proxmox/comments/ss07l4/guide_to_minimizing_ssdnvme_wearout_with_proxmox/">higher wearout rate</a> so I am trying ZFS on my SATA SSD for VM and container images, snapshots and backups.</p>
+
+<h3 id="setting-up-zfs">
+<a class="anchor" href="#setting-up-zfs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up ZFS</h3>
+
+<p>The best instructions can be found <a href="https://youtu.be/HqOGeqT-SCA">in this video around the 7 minute mark</a>.</p>
+
+<p>As a summary, in the GUI, select your main server node, then Storage &gt; Create. Make sure to select the ‘Add Storage’ option. In order to store more types of data, we need to create a <strong>Dataset</strong> and then a <strong>Directory</strong>.</p>
+
+<p>In the main node shell, we create the Dataset by entering something like  <code class="language-plaintext highlighter-rouge">zfs create zfs1ssd/zfsdata1 -o mountpoint=/zfsdata</code>, where:</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">zfs1ssd</code> is the zfs pool you created in the GUI</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">zfsdata1</code> is the name of the dataset you want to create (can call it anything you want here)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mountpoint=/zfsdata</code> is the location of the dataset. We still need to create the directory in the next step</li>
+</ul>
+
+<p>In the Datacenter, select Storage &gt; Add &gt; Directory. Here we specify an id (ie. <code class="language-plaintext highlighter-rouge">zfs1ssd-data</code>) and provide the mountpoint we just created (<code class="language-plaintext highlighter-rouge">/zfsdata</code>). You can now select all different types of content to b able to save here.</p>
+
+<h2 id="future-considerations">
+<a class="anchor" href="#future-considerations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Future Considerations</h2>
+
+<p>Eventually I do plan to do some video editing, and maybe even start storing my photos and videos locally. Therefore, on my radar is unbuffered ECC memory (ideally 3200MHz if possible) to take advantage of error correction. I will also use TrueNAS in this case as a VM on my Proxmox server.</p>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="stantonius/home"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/home/proxmox/home_lab/smart_home/2022/07/27/Proxmox_Storage.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/home/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/home/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/home/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Posts related to AI, GCP, IoT, Flutter. Maybe Blockchain, Web3. #ToDo: insert more buzzwords</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/stantonius" target="_blank" title="stantonius"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/thecraigman22" target="_blank" title="thecraigman22"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

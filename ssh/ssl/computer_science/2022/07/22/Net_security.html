@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>A slice of internet security | A Technical Hobbyists Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="A slice of internet security" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Overview of security-related items related to my home lab build" />
+<meta property="og:description" content="Overview of security-related items related to my home lab build" />
+<link rel="canonical" href="https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html" />
+<meta property="og:url" content="https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html" />
+<meta property="og:site_name" content="A Technical Hobbyists Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-07-22T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2022-07-22T00:00:00-05:00","url":"https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html","@type":"BlogPosting","headline":"A slice of internet security","dateModified":"2022-07-22T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html"},"description":"Overview of security-related items related to my home lab build","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/home/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://stantonius.github.io/home/feed.xml" title="A Technical Hobbyists Blog" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYM0GN6Q4W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZYM0GN6Q4W');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/home/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/home/">A Technical Hobbyists Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/home/about/">About Me</a><a class="page-link" href="/home/search/">Search</a><a class="page-link" href="/home/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">A slice of internet security</h1><p class="page-description">Overview of security-related items related to my home lab build</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-07-22T00:00:00-05:00" itemprop="datePublished">
+        Jul 22, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      4 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/home/categories/#ssh">ssh</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#ssl">ssl</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#computer_science">computer_science</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#ssh">SSH</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#deeper-dive-on-ssh-how">Deeper dive on SSH How</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#user-authentication">User authentication</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#ssl">SSL</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#deeper-dive-on-ssl-how">Deeper dive on SSL How</a></li>
+<li class="toc-entry toc-h3"><a href="#impact-on-a-home-lab">Impact on a home lab</a></li>
+</ul>
+</li>
+</ul><h2 id="ssh">
+<a class="anchor" href="#ssh" aria-hidden="true"><span class="octicon octicon-link"></span></a>SSH</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th><!-- --></th>
+      <th><!-- --></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>What</strong></td>
+      <td>
+<strong>S</strong>ecure <strong>SH</strong>ell <br> A communication <strong>protocol</strong>
+</td>
+    </tr>
+    <tr>
+      <td><strong>When</strong></td>
+      <td>Pretty much all the time (remote access to a computer, secure file transfer, remote automation)</td>
+    </tr>
+    <tr>
+      <td><strong>Where</strong></td>
+      <td>Port 22 (this is the default, but can be any port)</td>
+    </tr>
+    <tr>
+      <td><strong>Why</strong></td>
+      <td>Its easy (especially on a Mac or Linux where you simply do <code class="language-plaintext highlighter-rouge">ssh craig@ip.add.ress</code>; Windows you use PuTTy) along with secure</td>
+    </tr>
+    <tr>
+      <td><strong>How</strong></td>
+      <td><strong>Client-server model</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="deeper-dive-on-ssh-how">
+<a class="anchor" href="#deeper-dive-on-ssh-how" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deeper dive on SSH How</h3>
+
+<p><strong>Client-server model</strong>: the client initiates connection with the server, which is always listening to <strong>TCP</strong> connection attempts on the ssh port (22). The following is a very basic overview of the steps once an SSH request is triggered:
+	1. Both server and client make sure they <em>can</em> communicate with eachother (ie. they both use the same protocols and standards). This is usually never an issue if you are using updated OSes
+	2. A combination of asymmetric and symmetric encryption mechanisms ensure all future comms between the client and server are encrypted. The beauty of this approach is that the encryption keys are unique for each new connection, meaning any new session has new keys to encrypt the data
+	3. Once the above processes are approved, the <strong>user must authenticate themselves</strong>. This can be done either via password or <em>another pair</em> of asymmetric keys that identify you to the server.</p>
+
+<blockquote>
+  <p>Steps 1 &amp; 2 are not something we typically concern ourselves with; these are steps that are handled behind the scenes between the two computers. We usually only engage in step 3 when providing a password</p>
+</blockquote>
+
+<h4 id="user-authentication">
+<a class="anchor" href="#user-authentication" aria-hidden="true"><span class="octicon octicon-link"></span></a>User authentication</h4>
+
+<p>A great and simple guide <a href="https://www.hostinger.com/tutorials/ssh/how-to-set-up-ssh-keys">here</a> shows how to create keys and load them to the server for future use. However below are a couple of summary notes:</p>
+<ul>
+  <li>Use <code class="language-plaintext highlighter-rouge">ssh-keygen -t rsa</code> to create a key pair and store it locally.
+    <ul>
+      <li>You can add a passphrase for extra security, but then you need to remember this just like a password</li>
+    </ul>
+  </li>
+  <li>The public <code class="language-plaintext highlighter-rouge">.pub</code> file is <strong>the only file that should ever leave your local machine</strong>
+    <ul>
+      <li>
+<strong>NEVER</strong> send the private file <strong>anywhere</strong> (it always stays local)</li>
+    </ul>
+  </li>
+  <li>Run <code class="language-plaintext highlighter-rouge">ssh-copy-id user@serverip</code> to securely copy your <strong>public key</strong> to the server
+    <ul>
+      <li>You will need to log in using a password to do this (possibly as <code class="language-plaintext highlighter-rouge">root</code> user)</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="ssl">
+<a class="anchor" href="#ssl" aria-hidden="true"><span class="octicon octicon-link"></span></a>SSL</h2>
+
+<blockquote>
+  <p>Even though TLS is the modern implementation of SSL, the term SSL is still used colloquially</p>
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th><!-- --></th>
+      <th><!-- --></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>What</strong></td>
+      <td>Secure Sockets Layer<br> Actually a <strong>legacy</strong> name for the more secure <strong>TLS</strong> (Transport Layer Security)<br> These are <strong>handshake protocols</strong>
+</td>
+    </tr>
+    <tr>
+      <td><strong>When</strong></td>
+      <td>Anytime you visit a modern website - it is the <strong>S</strong> in HTTP<strong>S</strong>
+</td>
+    </tr>
+    <tr>
+      <td><strong>Where</strong></td>
+      <td>HTTPS: Port 80 via TCP<br> TLS: Port 443</td>
+    </tr>
+    <tr>
+      <td><strong>Why</strong></td>
+      <td>Created to do the following:<br> 1. Encrypts the HTTP data so it is unreadable to anyone except the proper recipient <br> 2. Validates the website is who they say they are</td>
+    </tr>
+    <tr>
+      <td><strong>How</strong></td>
+      <td>Asymmetric encryption</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="deeper-dive-on-ssl-how">
+<a class="anchor" href="#deeper-dive-on-ssl-how" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deeper dive on SSL How</h3>
+
+<p>At risk of oversimplification, below is a summary of what I have picked up regarding SSL.</p>
+
+<ul>
+  <li>An SSL certificate is formatted in the <strong>x509</strong> standard</li>
+  <li>The x509 SSL certificate standard includes several attributes, one of which is a <strong>public key</strong> used for asymmetric encryption</li>
+  <li>When a client sends an HTTP request (ie. a GET request) to a server, the server first <strong>sends back its x509 SSL certificate</strong>
+</li>
+  <li>The client then:
+    <ol>
+      <li>Validates the certificate came from a verified authority and the domain name is valid</li>
+      <li>Initiates the <strong>TLS handshake process</strong>, which includes encrypting data with the public key</li>
+    </ol>
+  </li>
+  <li>Once the TLS handshake is made, session keys are generated and the SSL certificate is no longer read until the end of the session (this speeds up the data exchange after this initial verification is complete)
+    <ul>
+      <li>According to <a href="https://www.cloudflare.com/en-ca/learning/ssl/transport-layer-security-tls/">Cloudflare</a>, this TLS connection protocol <em>in theory</em> adds more time when the webpage first loads, but in practice new methods improve the process such that the latency is negligible</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="impact-on-a-home-lab">
+<a class="anchor" href="#impact-on-a-home-lab" aria-hidden="true"><span class="octicon octicon-link"></span></a>Impact on a home lab</h3>
+
+<p>While it is interesting to know how HTTPS works anyway, there are some real applications for us when discussing home labs and servers:</p>
+
+<ol>
+  <li>Creating <a href="https://youtu.be/VH4gXcvkmOY">self-signed certificates</a> which gets rid of those annoying browser warnings when we are accessing our own private services (like the Proxmox server GUI)</li>
+  <li>
+<a href="https://www.the-digital-life.com/portainer-multiple-hosts/">Enabling Portainer</a> to manage Docker containers remotely</li>
+  <li><a href="https://www.the-digital-life.com/proxmox-monitoring/">Securely monitoring Proxmox stats</a></li>
+</ol>
+
+<p>Being comfortable with the above secure connection concepts is crucial to being a systems and networking engineer. It also makes our jobs a lot easier - no passwords and trusted API access is a nice outcome for a few extra lines of config when first establishing connections.</p>
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="stantonius/home"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/home/ssh/ssl/computer_science/2022/07/22/Net_security.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/home/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/home/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/home/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Posts related to AI, GCP, IoT, Flutter. Maybe Blockchain, Web3. #ToDo: insert more buzzwords</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/stantonius" target="_blank" title="stantonius"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/thecraigman22" target="_blank" title="thecraigman22"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
