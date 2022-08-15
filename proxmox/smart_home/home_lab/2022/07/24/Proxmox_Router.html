@@ -108,7 +108,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      10 min read
+      13 min read
     
 </span></p>
 
@@ -131,6 +131,12 @@ window.onload = wrap_img;
 
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#update-08-08-2022">Update 08-08-2022</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#temporary-fix">Temporary Fix</a></li>
+<li class="toc-entry toc-h3"><a href="#future-solutions">Future Solutions</a></li>
+</ul>
+</li>
 <li class="toc-entry toc-h2"><a href="#objective">Objective</a></li>
 <li class="toc-entry toc-h2"><a href="#steps">Steps</a>
 <ul>
@@ -154,10 +160,41 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h3"><a href="#resources">Resources</a></li>
 </ul>
 </li>
-</ul><h2 id="objective">
+</ul><h2 id="update-08-08-2022">
+<a class="anchor" href="#update-08-08-2022" aria-hidden="true"><span class="octicon octicon-link"></span></a>Update 08-08-2022</h2>
+
+<p>Unfortunately this configuration doesn’t actually work as intended. The issue is that, while all of the devices on the new subnet can access the internet, no device on my other local networks can communicate with devices on this subnet. Furthermore, I fooled myself into <em>thinking it was working</em> when I wrote the post below - when my Mac is connected to the Tailscale VPN, it can <em>see</em> the subnet gateway <code class="language-plaintext highlighter-rouge">192.168.99.1</code> because we configured Tailscale VPN node running on the Proxmox server to <a href="https://tailscale.com/kb/1019/subnets/?tab=linux">advertise the subnet &amp; enable port forwarding</a>.  Therefore any device that is connected to the Tailscale VPN “sees” the subnet gateway being advertised. As anyone who works with Tailscale knows, it runs so smoothly in the background it is easy to forget you are connected - hence my false belief this setup was working.</p>
+
+<p>Upon reflection, this lack of communication between home subnets makes total sense. How is a device (like a Raspberry Pi) that is connected to my home Wifi network supposed to find the gateway of the other network? Within the Tailscale VPN, we specifically configured it so that subnets are advertised on the network. However any device on the regular home network is not aware the subnet exists - they are only connected to the home router, which itself is unaware of the subnet too.</p>
+
+<h3 id="temporary-fix">
+<a class="anchor" href="#temporary-fix" aria-hidden="true"><span class="octicon octicon-link"></span></a>Temporary Fix</h3>
+<p>Because I am leaving for vacation for a few weeks (and I want a working setup before I go), I have decided to remove the <code class="language-plaintext highlighter-rouge">vmbr1</code> subnet bridge from my Proxmox hosts for the time being. This means that all Proxmox hosts will be visible on my main home network (via the default <code class="language-plaintext highlighter-rouge">vmbr0</code>) and will be assigned LAN IP’s via my router’s DHCP.</p>
+
+<h3 id="future-solutions">
+<a class="anchor" href="#future-solutions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Future Solutions</h3>
+<p>Upon my return, there are a couple of options I will explore.</p>
+
+<ol>
+  <li>All smart home devices will join the Tailscale VPN. This would solve the issue for any device that <em>can</em> run a Tailscale node, but it is not scaleable and also won’t work for any devices that aren’t configurable like a Raspberry Pi</li>
+  <li>Set up a configurable router (like OpenWRT) to direct traffic to out subnet. Tutorials found <a href="https://www.youtube.com/watch?v=UvniZs8q3eU">here</a> and <a href="https://youtu.be/R67wEo2V710">here</a>
+</li>
+  <li>Use a managed switch to configure a VLAN, even when I only have a single NIC (example of how to do this is <a href="https://youtu.be/ljq6wlzn4qo">here</a>)</li>
+  <li>There may be some magic I can do with the <code class="language-plaintext highlighter-rouge">iptables</code> on the Raspberry Pis to “make them aware” of the subnet. I am not sure about whether this option even makes sense - I still have a lot to learn about iptables.
+    <ol>
+      <li>Additionally, Raspian OS doesn’t have <code class="language-plaintext highlighter-rouge">iptables</code> by default, so I would need to install and risk locking myself out of the Pis</li>
+    </ol>
+  </li>
+  <li>Make the temporary solution permanent. I wanted to create a subnet both for my own learning, as well as future-proofing my setup in case I wanted to have some public-facing Proxmox hosts. However neither of these are critical requirements yet.</li>
+  <li>Look at the <em>experimental</em> <a href="https://pve.proxmox.com/pve-docs/chapter-pvesdn.html">Software Defined Network</a>  option coming to Proxmox. This may be the most promising option - but I want to wait for it to become more stable before I go this route.</li>
+</ol>
+
+<h2 id="objective">
 <a class="anchor" href="#objective" aria-hidden="true"><span class="octicon octicon-link"></span></a>Objective</h2>
 
 <p>I have set up a Tailscale VPN on my main Proxmox server. Now I want to route traffic to &amp; from all of the VMs and LXC apps in my server without having to install Tailscale on every machine (I know, this is <a href="https://tailscale.com/kb/1019/subnets/">counter to what they recommend</a>, but I am trying to better understand networking so this is a good project).</p>
+
+<p>I have learnt that what I am trying to achieve is colloquially called a <strong>router on a stick</strong></p>
 
 <h2 id="steps">
 <a class="anchor" href="#steps" aria-hidden="true"><span class="octicon octicon-link"></span></a>Steps</h2>
@@ -175,6 +212,10 @@ window.onload = wrap_img;
   <p>This might not be technically true that this setup is a vLAN. But as far as I can tell, because this is a custom subnet that I configured, any VM or container that uses this <code class="language-plaintext highlighter-rouge">vmbr1</code> bridge will join this subnet. As such, this is a unique network that was set up with software - hence vLAN.</p>
 </blockquote>
 
+<blockquote>
+  <p><strong>Update 08-08-2022</strong>: A great post <a href="https://networkengineering.stackexchange.com/a/28468">here</a> confirms that VLANs and subnets are <strong>different</strong>. While they often go hand-in-hand, VLANs create isolated networks at Layer 2 (ie. groups of <strong>ethernet</strong> devices isolated while on the same physical infrastructure); subnets are just blocks of IP addresses that know how to reach eachother <strong>without going via the gateway/router</strong>.</p>
+</blockquote>
+
 <h3 id="2-connect-additional-bridge-to-the-internet">
 <a class="anchor" href="#2-connect-additional-bridge-to-the-internet" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Connect additional bridge to the internet</h3>
 
@@ -182,7 +223,8 @@ window.onload = wrap_img;
 
 <p>Configuring NAT in our case involves updating the iptables to bridge traffic from our new network to the internet via <code class="language-plaintext highlighter-rouge">vmbr0</code> (which is connected to the physical port <code class="language-plaintext highlighter-rouge">enp6s0</code>). To set up NAT, edit <code class="language-plaintext highlighter-rouge">/etc/network/interfaces</code> to look like the following:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>auto lo
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+auto lo
 iface lo inet loopback
 
 iface enp6s0 inet manual
@@ -340,6 +382,7 @@ iface vmbr1 inet static
   <li><a href="https://tailscale.com/kb/1019/subnets/">Subnet routers and traffic relay nodes · Tailscale</a></li>
   <li><a href="https://youtu.be/kthHizueMiY">The Digital Life networking video that mentions calling the local IP address over Tailscale</a></li>
 </ul>
+
 
   </div><!-- from https://github.com/utterance/utterances -->
 <script src="https://utteranc.es/client.js"
