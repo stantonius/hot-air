@@ -11,9 +11,31 @@ metadata_key1: metadata_value1
 metadata_key2: metadata_value2
 ---
 
+## Update 08-08-2022
+
+Unfortunately this configuration doesn't actually work as intended. The issue is that, while all of the devices on the new subnet can access the internet, no device on my other local networks can communicate with devices on this subnet. Furthermore, I fooled myself into *thinking it was working* when I wrote the post below - when my Mac is connected to the Tailscale VPN, it can *see* the subnet gateway `192.168.99.1` because we configured Tailscale VPN node running on the Proxmox server to [advertise the subnet & enable port forwarding](https://tailscale.com/kb/1019/subnets/?tab=linux).  Therefore any device that is connected to the Tailscale VPN "sees" the subnet gateway being advertised. As anyone who works with Tailscale knows, it runs so smoothly in the background it is easy to forget you are connected - hence my false belief this setup was working.
+
+Upon reflection, this lack of communication between home subnets makes total sense. How is a device (like a Raspberry Pi) that is connected to my home Wifi network supposed to find the gateway of the other network? Within the Tailscale VPN, we specifically configured it so that subnets are advertised on the network. However any device on the regular home network is not aware the subnet exists - they are only connected to the home router, which itself is unaware of the subnet too.
+
+### Temporary Fix
+Because I am leaving for vacation for a few weeks (and I want a working setup before I go), I have decided to remove the `vmbr1` subnet bridge from my Proxmox hosts for the time being. This means that all Proxmox hosts will be visible on my main home network (via the default `vmbr0`) and will be assigned LAN IP's via my router's DHCP.
+
+### Future Solutions
+Upon my return, there are a couple of options I will explore.
+
+1. All smart home devices will join the Tailscale VPN. This would solve the issue for any device that *can* run a Tailscale node, but it is not scaleable and also won't work for any devices that aren't configurable like a Raspberry Pi
+2. Set up a configurable router (like OpenWRT) to direct traffic to out subnet. Tutorials found [here](https://www.youtube.com/watch?v=UvniZs8q3eU) and [here](https://youtu.be/R67wEo2V710)
+3. Use a managed switch to configure a VLAN, even when I only have a single NIC (example of how to do this is [here](https://youtu.be/ljq6wlzn4qo))
+4. There may be some magic I can do with the `iptables` on the Raspberry Pis to "make them aware" of the subnet. I am not sure about whether this option even makes sense - I still have a lot to learn about iptables.
+	1. Additionally, Raspian OS doesn't have `iptables` by default, so I would need to install and risk locking myself out of the Pis
+5. Make the temporary solution permanent. I wanted to create a subnet both for my own learning, as well as future-proofing my setup in case I wanted to have some public-facing Proxmox hosts. However neither of these are critical requirements yet.
+6. Look at the *experimental* [Software Defined Network](https://pve.proxmox.com/pve-docs/chapter-pvesdn.html)  option coming to Proxmox. This may be the most promising option - but I want to wait for it to become more stable before I go this route.
+
 ## Objective
 
 I have set up a Tailscale VPN on my main Proxmox server. Now I want to route traffic to & from all of the VMs and LXC apps in my server without having to install Tailscale on every machine (I know, this is [counter to what they recommend](https://tailscale.com/kb/1019/subnets/), but I am trying to better understand networking so this is a good project).
+
+I have learnt that what I am trying to achieve is colloquially called a **router on a stick**
 
 ## Steps
 ### 1. Create a second Virtual Network Bridge
@@ -27,6 +49,8 @@ It was important for me to understand that I could **use any subnet range here**
 
 > This might not be technically true that this setup is a vLAN. But as far as I can tell, because this is a custom subnet that I configured, any VM or container that uses this `vmbr1` bridge will join this subnet. As such, this is a unique network that was set up with software - hence vLAN.
 
+> **Update 08-08-2022**: A great post [here](https://networkengineering.stackexchange.com/a/28468) confirms that VLANs and subnets are **different**. While they often go hand-in-hand, VLANs create isolated networks at Layer 2 (ie. groups of **ethernet** devices isolated while on the same physical infrastructure); subnets are just blocks of IP addresses that know how to reach eachother **without going via the gateway/router**.
+
 ### 2. Connect additional bridge to the internet
 
 Now that we have created a second Linux bridge `vmbr1`, we need to configure the main Proxmox server node to route traffic from this second bridge to the main gateway. This is done via a Network Address Translation (**NAT**; as a reminder, NAT is the process of allowing private IPs to use the same single Public IP; more on networking can be found [here](https://stantonius.github.io/home/networking/computer_science/2022/07/20/Networking_Keys_Summary.html)).
@@ -34,6 +58,7 @@ Now that we have created a second Linux bridge `vmbr1`, we need to configure the
 Configuring NAT in our case involves updating the iptables to bridge traffic from our new network to the internet via `vmbr0` (which is connected to the physical port `enp6s0`). To set up NAT, edit `/etc/network/interfaces` to look like the following:
 
 ```bash
+
 auto lo
 iface lo inet loopback
 
@@ -176,3 +201,4 @@ Some may argue that we shouldn't be using our main Proxmox server node as the ne
 * [Create Private Network Bridge on Proxmox VE with NAT | ComputingForGeeks](https://computingforgeeks.com/create-private-network-bridge-proxmox-with-nat/)
 * [Subnet routers and traffic relay nodes · Tailscale](https://tailscale.com/kb/1019/subnets/)
 * [The Digital Life networking video that mentions calling the local IP address over Tailscale](https://youtu.be/kthHizueMiY)
+
