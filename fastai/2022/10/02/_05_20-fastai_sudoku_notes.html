@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>fastai Sudoku - One Solution with Notes | A Technical Hobbyists Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="fastai Sudoku - One Solution with Notes" />
+<meta name="author" content="Craig Stanton" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="One of my solutions and some notes when using Sudoku to help learn fastai data preparation" />
+<meta property="og:description" content="One of my solutions and some notes when using Sudoku to help learn fastai data preparation" />
+<link rel="canonical" href="https://stantonius.github.io/home/fastai/2022/10/02/_05_20-fastai_sudoku_notes.html" />
+<meta property="og:url" content="https://stantonius.github.io/home/fastai/2022/10/02/_05_20-fastai_sudoku_notes.html" />
+<meta property="og:site_name" content="A Technical Hobbyists Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-10-02T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2022-10-02T00:00:00-05:00","url":"https://stantonius.github.io/home/fastai/2022/10/02/_05_20-fastai_sudoku_notes.html","@type":"BlogPosting","headline":"fastai Sudoku - One Solution with Notes","dateModified":"2022-10-02T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/fastai/2022/10/02/_05_20-fastai_sudoku_notes.html"},"author":{"@type":"Person","name":"Craig Stanton"},"description":"One of my solutions and some notes when using Sudoku to help learn fastai data preparation","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/home/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://stantonius.github.io/home/feed.xml" title="A Technical Hobbyists Blog" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYM0GN6Q4W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZYM0GN6Q4W');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/home/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/home/">A Technical Hobbyists Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/home/about/">About Me</a><a class="page-link" href="/home/search/">Search</a><a class="page-link" href="/home/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">fastai Sudoku - One Solution with Notes</h1><p class="page-description">One of my solutions and some notes when using Sudoku to help learn fastai data preparation</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-10-02T00:00:00-05:00" itemprop="datePublished">
+        Oct 2, 2022
+      </time>• 
+          <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span class="p-author h-card" itemprop="name">Craig Stanton</span></span>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      19 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/home/categories/#fastai">fastai</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/stantonius/home/tree/master/_notebooks/2022_05_20-fastai_sudoku_notes.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/home/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/stantonius/home/master?filepath=_notebooks%2F2022_05_20-fastai_sudoku_notes.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/home/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/stantonius/home/blob/master/_notebooks/2022_05_20-fastai_sudoku_notes.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/home/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Why-Sudoku?">Why Sudoku? </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Setup">Setup </a></li>
+<li class="toc-entry toc-h3"><a href="#Getting-Started">Getting Started </a></li>
+<li class="toc-entry toc-h3"><a href="#Challenge-1---Create-a-Datasets-object-using-the-DataBlock-API">Challenge 1 - Create a Datasets object using the DataBlock API </a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#Define-our-DataBlock-functional-arguments">Define our DataBlock functional arguments </a></li>
+<li class="toc-entry toc-h4"><a href="#Check-our-Dataset">Check our Dataset </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#Challenge-2---Use-TfmdDL-to-solve-the-Sudoku-puzzle">Challenge 2 - Use TfmdDL to solve the Sudoku puzzle </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Notes">Notes </a>
+<ul>
+<li class="toc-entry toc-h5"><a href="#General-fastai">General fastai </a></li>
+<li class="toc-entry toc-h2"><a href="#DataLoaders">DataLoaders </a>
+<ul>
+<li class="toc-entry toc-h5"><a href="#TfmdDL---why-did-we-use-this-class?">TfmdDL - why did we use this class? </a></li>
+<li class="toc-entry toc-h5"><a href="#Collate">Collate </a></li>
+<li class="toc-entry toc-h5"><a href="#DataBlock">DataBlock </a></li>
+<li class="toc-entry toc-h5"><a href="#Transform">Transform </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#DataBlock">DataBlock </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Blocks">Blocks </a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#Getters">Getters </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#Mini-Batch-Shuffling">Mini-Batch Shuffling </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Next-Steps">Next Steps </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022_05_20-fastai_sudoku_notes.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use a Sudoku puzzle to learn more about the fastai <code>DataBlock</code>, <code>Datasets</code>, <code>DataLoaders</code> and <code>TfmdDL</code> objects.</p>
+<p>Why even bother with this? Jeremy's advice is to build models as quick as you can. However I often find myself tripping at the first hurdle many times - <strong>the data preparation stage</strong>. It doesn't matter how many times I read about <code>DataBlock</code>, <code>TfmdDL</code>, and <code>DataLoaders</code>, there is no substitute for actually using the libraries. So why not outline a game that requires you to build and solve the puzzle by using the same tools that you need to structure the data for a fastai <code>Learner</code> (which is where the actual training magic happens).</p>
+<p>Additionally, I really struggle at times to read the fastai code - it contains so many Python tricks that I am not always familiar with. Therefore this type of exercise forces me to interrogate the code in order to write working DataBlock functions.</p>
+<blockquote>
+<p>This is a solution notebook for the fastai Sudoku notebook</p>
+</blockquote>
+<h2 id="Why-Sudoku?">
+<a class="anchor" href="#Why-Sudoku?" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why Sudoku?<a class="anchor-link" href="#Why-Sudoku?"> </a>
+</h2>
+<p>Besides the fact that most people know the game, I needed something that was 2-dimensional because that is how our raw ML data is usually represented (even if we are working with images, its helpful to <em>think</em> of the input data in a tabular structure, where each training item is represented as a row, and one column is the independent variable and while another is the dependent variable).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Setup">
+<a class="anchor" href="#Setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup<a class="anchor-link" href="#Setup"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pip install py-sudoku<span class="o">==</span><span class="m">1</span>.0.3
+<span class="kn">from</span> <span class="nn">fastai.text.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">fastai.vision.all</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">sudoku</span> <span class="kn">import</span> <span class="n">Sudoku</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">widgets</span>
+<span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">pprint</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">HTML</span>
+
+<span class="k">class</span> <span class="nc">FastSudoku</span><span class="p">:</span>
+    <span class="sd">"""</span>
+<span class="sd">    Learn how to use the fastai DataBlock, Datasets, TfmdDL, and DataLoaders transforms and callbacks by creating and solving a sudoku puzzle</span>
+<span class="sd">    """</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">difficulty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">527</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"."</span><span class="p">)):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">puzzle</span> <span class="o">=</span> <span class="n">Sudoku</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span><span class="o">.</span><span class="n">difficulty</span><span class="p">(</span><span class="n">difficulty</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">puzzle</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span><span class="o">.</span><span class="n">board</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">puzzle</span><span class="o">.</span><span class="n">board</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">data_dir</span><span class="o">/</span><span class="s2">"raw_data.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Puzzle created"</span>
+    
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">np2list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dls</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Unpack the dataloaders output, convert to int and str</span>
+<span class="sd">        """</span>
+        <span class="n">holder</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">dl</span> <span class="ow">in</span> <span class="n">dls</span><span class="p">:</span>
+            <span class="n">holder</span><span class="o">+=</span><span class="n">dl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preds</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">np2list</span><span class="p">,</span><span class="n">j</span><span class="p">))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">holder</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">solved</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preds</span><span class="p">)]):</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n\n</span><span class="s2">Yes you are a fastai...and sudoku...whiz!</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n\n</span><span class="s2">Not quite. Check out your puzzle below and try again!</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="c1"># print the current board with any guesses</span>
+            <span class="n">Sudoku</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">board</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">preds</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">fast_sudoku_answers</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://gist.githubusercontent.com/stantonius/ca95d88dcd0085b12a302f64b326caf8/raw/68b676048138fc8096157176b411b677a98a34ec/fast_sudoku_answers.json"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Looking in indexes: https://pypi.org/simple, https://us-python.pkg.dev/colab-wheels/public/simple/
+Requirement already satisfied: py-sudoku==1.0.3 in /usr/local/lib/python3.7/dist-packages (1.0.3)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Getting-Started">
+<a class="anchor" href="#Getting-Started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started<a class="anchor-link" href="#Getting-Started"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The first thing to do is to set the puzzle <strong>difficulty</strong> (a float between 0 and 1) and the <strong>seed</strong> (any integer). Note that the seed ensures the reproducability of the same Sudoku board - therefore, in order to practice a second time you will want to change this value)</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fs</span> <span class="o">=</span> <span class="n">FastSudoku</span><span class="p">(</span><span class="n">difficulty</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">seed</span> <span class="o">=</span> <span class="mi">92</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fs</span><span class="o">.</span><span class="n">puzzle</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+-------+-------+
+| 5   8 | 6 7 1 | 3 9 4 |
+| 6 9 3 |     8 | 1   7 |
+| 4 1 7 | 5 3   | 2 8 6 |
++-------+-------+-------+
+| 8   5 | 4   3 | 9     |
+| 1 6 9 |   2 5 | 8 4 3 |
+| 2 3 4 |   8 6 |   7 1 |
++-------+-------+-------+
+| 7 5 1 | 8 6 2 | 4 3 9 |
+|   4 2 | 3 5 7 |       |
+| 3 8 6 | 1 9 4 | 7 2 5 |
++-------+-------+-------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Challenge-1---Create-a-Datasets-object-using-the-DataBlock-API">
+<a class="anchor" href="#Challenge-1---Create-a-Datasets-object-using-the-DataBlock-API" aria-hidden="true"><span class="octicon octicon-link"></span></a>Challenge 1 - Create a <code>Datasets</code> object using the <code>DataBlock</code> API<a class="anchor-link" href="#Challenge-1---Create-a-Datasets-object-using-the-DataBlock-API"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the current directory we have a generated file <code>raw_data.csv</code> which contains the unsolved Sudoku puzzle data.</p>
+<p><strong>Objective</strong>: Using the <code>DataBlock</code> API, pass as many function arguments (ie. <code>get_items</code>, <code>batch_tfms</code>, <code>get_y</code>, etc.) as possible so that you create a <code>Datasets</code> object that contains the original Sudoku values <em>along with an additional <code>y-value</code> column</em>.</p>
+<p><strong>Instructions</strong>:</p>
+<ul>
+<li>Grab the <code>raw_data.csv</code> puzzle and create a <code>DataBlock</code>
+</li>
+<li>You should try and use <em>as many</em> of the functions below as DataBlock arguments - not necessarily all, but as many as you can/wish. The point of this is not to be the most efficient or practical way of creating a <code>DataBlock</code> but rather to <em>understand what each argument function argument does</em>.</li>
+</ul>
+<p><em>Tips</em>:</p>
+<ol>
+<li>Don't be afraid to comment out lines to see how the absence of functions changes the output</li>
+<li>Use print statements to track the output of each function</li>
+<li>Read the fastai code for the functions and classes you are unfamiliar with.</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Question</strong>: the objective states to create a new <code>y-value</code> column. What should this column contain? Why?</p>
+<p><em>Click on the <code>Show answer</code> buttons below to reveal the answers</em></p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">button</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Show answer"</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">show_answer</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">output</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fast_sudoku_answers</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">"y_col"</span><span class="p">])</span>
+
+<span class="n">button</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">show_answer</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">button</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Show answer"</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">show_answer</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">output</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fast_sudoku_answers</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">"why_y"</span><span class="p">])</span>
+
+<span class="n">button</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">show_answer</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Define-our-DataBlock-functional-arguments">
+<a class="anchor" href="#Define-our-DataBlock-functional-arguments" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define our <code>DataBlock</code> functional arguments<a class="anchor-link" href="#Define-our-DataBlock-functional-arguments"> </a>
+</h4>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_items</span><span class="p">(</span><span class="n">raw_data_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">"""</span>
+<span class="sd">    `get_items()` main purpose is to **fetch the raw data** so that additional </span>
+<span class="sd">    getters and transformations can be applied to the data.</span>
+
+<span class="sd">    Notice how here we actually modify the data by appending our `y` index column.  </span>
+<span class="sd">    """</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">raw_data_path</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="k">def</span> <span class="nf">mock_item_tfm</span><span class="p">(</span><span class="n">o</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="sd">"""</span>
+<span class="sd">    Prints a statement just to show when this item_tfms is called. Confirmed that</span>
+<span class="sd">    this is not called because we are creating our DataLoaders unconventionally</span>
+<span class="sd">    """</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"item_tfms supplied to the DataBlock API has been called"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">o</span>
+
+<span class="k">def</span> <span class="nf">get_x</span><span class="p">(</span><span class="n">a</span><span class="p">):</span> <span class="c1"># -&gt; Iterator (colab is Python 3.7 which doesn't like this)</span>
+    <span class="sd">"""</span>
+<span class="sd">    The fact this outputs an Iterable, where each item in the iterable is a </span>
+<span class="sd">    single `x`-value, is important to realise. </span>
+<span class="sd">    </span>
+<span class="sd">    Why is it important that this function outputs an iterable? Well, what can </span>
+<span class="sd">    you do with 2 equal length iterables? </span>
+<span class="sd">    `zip` them together - which is what happens is the `DataLoaders`</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">get_y</span><span class="p">(</span><span class="n">a</span><span class="p">):</span> <span class="c1"># -&gt; Iterator (colab is Python 3.7 which doesn't like this)</span>
+    <span class="sd">"""</span>
+<span class="sd">    Again just like in `get_x`, the fact this outputs an iterable is </span>
+<span class="sd">    the main takeaway here.</span>
+<span class="sd">    """</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"get_y value is </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="s1">'y'</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span>
+    
+
+<span class="c1">#################</span>
+<span class="c1"># Predefined</span>
+<span class="c1">#################</span>
+
+<span class="k">def</span> <span class="nf">splitter</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="c1"># In this exercise, we don't need train and validation sets</span>
+    <span class="c1"># Therefore this is effectively a dummy function in this specific circumstance</span>
+    <span class="c1"># But never forget about Splitter because it is such an important concept!</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)),]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dblock</span> <span class="o">=</span> <span class="n">DataBlock</span><span class="p">(</span>
+    <span class="c1"># blocks=[TransformBlock, CategoryBlock],</span>
+    <span class="n">get_items</span><span class="o">=</span><span class="n">get_items</span><span class="p">,</span>
+    <span class="n">get_x</span><span class="o">=</span><span class="n">get_x</span><span class="p">,</span>
+    <span class="n">get_y</span><span class="o">=</span><span class="n">get_y</span><span class="p">,</span>
+    <span class="n">splitter</span><span class="o">=</span><span class="n">splitter</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Question</strong>: why did we not need to provide any <code>blocks</code> arguments?</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">button</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Show answer"</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">show_answer</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">output</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fast_sudoku_answers</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">"no_blocks"</span><span class="p">])</span>
+
+<span class="n">button</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">show_answer</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Question</strong>: why did we not supply any <code>batch_tfms</code> or <code>item_tfms</code>?</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">button</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Show answer"</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Output</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">show_answer</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">output</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">fast_sudoku_answers</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">"no_tfms"</span><span class="p">])</span>
+
+<span class="n">button</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">show_answer</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Check-our-Dataset">
+<a class="anchor" href="#Check-our-Dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>Check our Dataset<a class="anchor-link" href="#Check-our-Dataset"> </a>
+</h4>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dsets</span> <span class="o">=</span> <span class="n">dblock</span><span class="o">.</span><span class="n">datasets</span><span class="p">(</span><span class="s2">"raw_data.csv"</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>get_y value is 0.0 
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fs</span><span class="o">.</span><span class="n">puzzle</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">dsets</span><span class="o">.</span><span class="n">items</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+-------+-------+
+| 5   8 | 6 7 1 | 3 9 4 |
+| 6 9 3 |     8 | 1   7 |
+| 4 1 7 | 5 3   | 2 8 6 |
++-------+-------+-------+
+| 8   5 | 4   3 | 9     |
+| 1 6 9 |   2 5 | 8 4 3 |
+| 2 3 4 |   8 6 |   7 1 |
++-------+-------+-------+
+| 7 5 1 | 8 6 2 | 4 3 9 |
+|   4 2 | 3 5 7 |       |
+| 3 8 6 | 1 9 4 | 7 2 5 |
++-------+-------+-------+
+
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+  <div id="df-eca5b4d8-c1aa-471d-bbf2-1dd40a1b8d0d">
+    <div class="colab-df-container">
+      <div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>y</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>8</td>
+      <td>6.0</td>
+      <td>7.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>9.0</td>
+      <td>4.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6.0</td>
+      <td>9.0</td>
+      <td>3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>8.0</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>7.0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4.0</td>
+      <td>1.0</td>
+      <td>7</td>
+      <td>5.0</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>2.0</td>
+      <td>8.0</td>
+      <td>6.0</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>8.0</td>
+      <td>NaN</td>
+      <td>5</td>
+      <td>4.0</td>
+      <td>NaN</td>
+      <td>3.0</td>
+      <td>9.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.0</td>
+      <td>6.0</td>
+      <td>9</td>
+      <td>NaN</td>
+      <td>2.0</td>
+      <td>5.0</td>
+      <td>8.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>4</td>
+      <td>NaN</td>
+      <td>8.0</td>
+      <td>6.0</td>
+      <td>NaN</td>
+      <td>7.0</td>
+      <td>1.0</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7.0</td>
+      <td>5.0</td>
+      <td>1</td>
+      <td>8.0</td>
+      <td>6.0</td>
+      <td>2.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>9.0</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>NaN</td>
+      <td>4.0</td>
+      <td>2</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>7.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>3.0</td>
+      <td>8.0</td>
+      <td>6</td>
+      <td>1.0</td>
+      <td>9.0</td>
+      <td>4.0</td>
+      <td>7.0</td>
+      <td>2.0</td>
+      <td>5.0</td>
+      <td>8</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-eca5b4d8-c1aa-471d-bbf2-1dd40a1b8d0d')" title="Convert this dataframe to an interactive table." style="display:none;">
+        
+  &lt;svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px"&gt;
+    <path d="M0 0h24v24H0V0z" fill="none"></path>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"></path><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"></path>
+  &lt;/svg&gt;
+      </button>
+      
+  <style>
+    .colab-df-container {
+      display:flex;
+      flex-wrap:wrap;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+      <script>
+        const buttonEl =
+          document.querySelector('#df-eca5b4d8-c1aa-471d-bbf2-1dd40a1b8d0d button.colab-df-convert');
+        buttonEl.style.display =
+          google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+        async function convertToInteractive(key) {
+          const element = document.querySelector('#df-eca5b4d8-c1aa-471d-bbf2-1dd40a1b8d0d');
+          const dataTable =
+            await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                     [key], {});
+          if (!dataTable) return;
+
+          const docLinkHtml = 'Like what you see? Visit the ' +
+            '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+            + ' to learn more about interactive tables.';
+          element.innerHTML = '';
+          dataTable['output_type'] = 'display_data';
+          await google.colab.output.renderOutput(dataTable, element);
+          const docLink = document.createElement('div');
+          docLink.innerHTML = docLinkHtml;
+          element.appendChild(docLink);
+        }
+      </script>
+    </div>
+  </div>
+  
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Challenge-2---Use-TfmdDL-to-solve-the-Sudoku-puzzle">
+<a class="anchor" href="#Challenge-2---Use-TfmdDL-to-solve-the-Sudoku-puzzle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Challenge 2 - Use <code>TfmdDL</code> to solve the Sudoku puzzle<a class="anchor-link" href="#Challenge-2---Use-TfmdDL-to-solve-the-Sudoku-puzzle"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote>
+<p>Why are we using <code>TfmdDL</code> here? If you look into the fastai code, any time you create a <code>DataLoaders</code>, the <code>TfdmDL</code> class is ultimately called.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Objective:</strong> Use the <code>TfmdDL</code> callbacks to modify the <code>Datasets</code> you just created to solve the Sudoku board</p>
+<p><strong>Instructions</strong>:</p>
+<ul>
+<li>Test your DataLoaders object against the puzzle, you can use the <code>fs.check(dls)</code> method</li>
+<li>You should try and use <em>as many</em> of the callback functions below - not necessarily all, but as many as you can/wish. The point of this is not to be the most efficient or practical way of creating a <code>DataLoaders</code> but rather to understand what each function argument does.</li>
+</ul>
+<p><em>Tips</em>:</p>
+<ol>
+<li>Use <strong>helper function(s)</strong> that are called within other functions to insert your Sudoku responses into the row</li>
+<li>Don't be afraid to comment out lines to see how the absence of functions changes the output</li>
+<li>Use print statements to track the output of each function</li>
+<li>Read the fastai code for the functions and classes you are unfamiliar with.</li>
+</ol>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fs</span><span class="o">.</span><span class="n">puzzle</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>+-------+-------+-------+
+| 5   8 | 6 7 1 | 3 9 4 |
+| 6 9 3 |     8 | 1   7 |
+| 4 1 7 | 5 3   | 2 8 6 |
++-------+-------+-------+
+| 8   5 | 4   3 | 9     |
+| 1 6 9 |   2 5 | 8 4 3 |
+| 2 3 4 |   8 6 |   7 1 |
++-------+-------+-------+
+| 7 5 1 | 8 6 2 | 4 3 9 |
+|   4 2 | 3 5 7 |       |
+| 3 8 6 | 1 9 4 | 7 2 5 |
++-------+-------+-------+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># HELPER FUNCTION</span>
+<span class="c1">#################</span>
+
+<span class="k">def</span> <span class="nf">s</span><span class="p">(</span><span class="n">puzzle</span><span class="p">,</span><span class="n">row</span><span class="p">,</span><span class="n">col</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Helper function that takes non-zero indexed row and column and inserts value into puzzle.</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">puzzle</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">col</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">puzzle</span>
+    
+<span class="c1">###########################</span>
+<span class="c1"># TfmdDL FUNCTION ARGUMENTS</span>
+<span class="c1">###########################</span>
+
+<span class="k">def</span> <span class="nf">before_iter</span><span class="p">():</span>
+    <span class="sd">"""</span>
+<span class="sd">    TODO: Still not quite sure what this function does or when I would use it</span>
+<span class="sd">    """</span>
+    <span class="c1"># pass</span>
+    <span class="k">return</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"Hello"</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">after_item</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Receives **each** item **before a batch is created**.</span>
+<span class="sd">    This includes the `x` and `y` values **individually** after the `get_x` and `get_y`</span>
+<span class="sd">    are applied.</span>
+
+<span class="sd">    Crucially, this is where **`batch_tfms`** can be applied</span>
+
+<span class="sd">    For example, if the first row in our Sudoku dataset is `[5.0, nan, 8.0, 6.0, 7.0, 1.0, 3.0, 9.0, 4.0, 0]`,</span>
+<span class="sd">    where the last item is our `y-value`, then this function will receive</span>
+<span class="sd">    `[5.0, nan, 8.0, 6.0, 7.0, 1.0, 3.0, 9.0, 4.0]` and also (separately) receives `0`</span>
+<span class="sd">    """</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"after_item called on </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+<span class="k">def</span> <span class="nf">before_batch</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Receives a list of **tuples** of length batch-size. But beware - this is not the actual batch</span>
+<span class="sd">    because there is no shuffling done here.</span>
+
+<span class="sd">    Another key to realise here is that we are already dealing with tuples here,</span>
+<span class="sd">    where the first tuple item is `x` (as defined by `get_x` or `getters`) and </span>
+<span class="sd">    the second item is `y`.</span>
+
+<span class="sd">    For example, if our batch size is 3, this function receives the 3 dataset rows. </span>
+<span class="sd">    [([5.0, nan, 8.0, 6.0, 7.0, 1.0, 3.0, 9.0, 4.0], 0), ([6.0, 9.0, 3.0, nan, nan, 8.0, 1.0, nan, 7.0], 1), ([4.0, 1.0, 7.0, 1, 3.0, nan, 2.0, 8.0, 6.0], 2)]</span>
+
+<span class="sd">    **`batch_tfms`** can be applied at this stage</span>
+<span class="sd">    """</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"before_batch called on </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mf">7.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">7.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mf">7.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mf">9.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mf">5.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+<span class="k">def</span> <span class="nf">after_iter</span><span class="p">(</span><span class="n">cls_name</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Does not usually take any arguments. A function that normally would have</span>
+<span class="sd">    access to `self`.</span>
+
+<span class="sd">    Unsure of what the use case for this might be </span>
+<span class="sd">    """</span>
+    <span class="c1"># absolute hack using globals</span>
+    <span class="n">puzzle</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">cls_name</span><span class="p">]]</span>
+    <span class="n">puzzle_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">puzzle</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tup</span><span class="p">:</span> <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">puzzle_sorted</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"After_iter </span><span class="si">{</span><span class="n">xs</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="c1"># pass</span>
+    <span class="k">return</span> <span class="n">puzzle</span>
+
+<span class="k">def</span> <span class="nf">create_batches</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Receives a **generator** that contains the **indices** of items to be included in each batch</span>
+<span class="sd">    """</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"create_batches called on </span><span class="si">{</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">a</span><span class="p">))</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+<span class="k">def</span> <span class="nf">create_item</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Passed the **indices** of the items that will form the batch.</span>
+<span class="sd">    It is therefore called **before** a batch is created (ie. before `before_batch`)</span>
+<span class="sd">    Therefore if `shuffle=True`, it will recieve random indices</span>
+<span class="sd">    """</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"create_item called on </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+<span class="k">def</span> <span class="nf">custom_collate</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Generally, a collate function **reshapes** the data from a list of tuples </span>
+<span class="sd">    (where the first item in the tuple is the `x` value, the second is the `y`)</span>
+<span class="sd">    to an *iterable* (ie. list, tensor, or some other collection) **of tensors**</span>
+<span class="sd">    (where the first tensor is **all of the `x` values in the batch**, and the</span>
+<span class="sd">    second is all of the `y` values)</span>
+
+<span class="sd">    For example, pulled directly from the torch source code:</span>
+<span class="sd">    &gt;&gt;&gt; default_collate([(0, 1), (2, 3)])</span>
+<span class="sd">    [tensor([0, 2]), tensor([1, 3])]</span>
+
+<span class="sd">    Notice how the batch above is "reshuffled"</span>
+
+<span class="sd">    Why might you create a custom collate function? The easiest example is in NLP</span>
+<span class="sd">    when you want to pad sequences to be the length of the longest item in the batch</span>
+<span class="sd">    """</span>
+    <span class="c1"># Note this is a very poor implementation; just for learning purposes</span>
+    <span class="c1"># It does not convert the items to a tensor</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">create_batch</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Generally calls a collate function. By supplying this argument, we should </span>
+<span class="sd">    have come collate function run here</span>
+<span class="sd">    """</span>
+    <span class="c1"># print(f"create_batch called on {custom_collate(a)} \n")</span>
+    <span class="c1"># return custom_collate(a)</span>
+    <span class="k">return</span> <span class="n">a</span>
+
+<span class="k">def</span> <span class="nf">after_batch</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    The actual batch output. Any final **batch transformations** can be applied following</span>
+<span class="sd">    the `collate_fn` is applied in `create_batch` (ie. if your transforms needed</span>
+<span class="sd">    to take into consideration any changes to the batch during collate, then you would</span>
+<span class="sd">    apply these here)</span>
+<span class="sd">    """</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mf">6.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">9.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mf">4.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mf">9.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mf">5.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mf">6.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mf">8.0</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dls</span> <span class="o">=</span> <span class="n">TfmdDL</span><span class="p">(</span>
+    <span class="n">dsets</span><span class="p">,</span>
+    <span class="n">bs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>   <span class="c1"># change this value to see its effects</span>
+    <span class="c1"># before_iter=before_iter,</span>
+    <span class="n">after_item</span><span class="o">=</span><span class="n">after_item</span><span class="p">,</span>
+    <span class="n">before_batch</span><span class="o">=</span><span class="n">before_batch</span><span class="p">,</span>
+    <span class="c1"># after_iter=partial(after_iter, "dls"),</span>
+    <span class="c1"># create_item=create_item,</span>
+    <span class="n">create_batch</span><span class="o">=</span><span class="n">create_batch</span><span class="p">,</span>
+    <span class="n">after_batch</span><span class="o">=</span><span class="n">after_batch</span><span class="p">,</span>
+    <span class="c1"># create_batches=create_batches,</span>
+    <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span> <span class="c1"># change to see the impact</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the <code>fs.check()</code> function to check your answers.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fs</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">dls</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>get_y value is 0.0 
+
+get_y value is 2.0 
+
+after_item called on [5.0, nan, 8.0, 6.0, 7.0, 1.0, 3.0, 9.0, 4.0] 
+after_item called on [4.0, 1.0, 7.0, 5.0, 3.0, nan, 2.0, 8.0, 6.0] 
+
+after_item called on 0.0 
+
+get_y value is 1.0 
+
+
+after_item called on 2.0 
+after_item called on [6.0, 9.0, 3.0, nan, nan, 8.0, 1.0, nan, 7.0] 
+
+after_item called on 1.0 
+
+before_batch called on [([5.0, nan, 8.0, 6.0, 7.0, 1.0, 3.0, 9.0, 4.0], 0.0), ([6.0, 9.0, 3.0, nan, nan, 8.0, 1.0, nan, 7.0], 1.0)] 
+
+get_y value is 4.0 
+
+
+after_item called on [1.0, 6.0, 9.0, nan, 2.0, 5.0, 8.0, 4.0, 3.0] 
+get_y value is 3.0 
+
+
+after_item called on [8.0, nan, 5.0, 4.0, nan, 3.0, 9.0, nan, nan] 
+after_item called on 4.0 
+
+
+after_item called on 3.0 
+get_y value is 5.0 
+
+
+before_batch called on [([4.0, 1.0, 7.0, 5.0, 3.0, nan, 2.0, 8.0, 6.0], 2.0), ([8.0, nan, 5.0, 4.0, nan, 3.0, 9.0, nan, nan], 3.0)] 
+after_item called on [2.0, 3.0, 4.0, nan, 8.0, 6.0, nan, 7.0, 1.0] 
+
+
+after_item called on 5.0 
+get_y value is 6.0 
+
+
+before_batch called on [([1.0, 6.0, 9.0, nan, 2.0, 5.0, 8.0, 4.0, 3.0], 4.0), ([2.0, 3.0, 4.0, nan, 8.0, 6.0, nan, 7.0, 1.0], 5.0)] 
+after_item called on [7.0, 5.0, 1.0, 8.0, 6.0, 2.0, 4.0, 3.0, 9.0] 
+
+
+get_y value is 8.0 
+after_item called on 6.0 
+
+
+after_item called on [3.0, 8.0, 6.0, 1.0, 9.0, 4.0, 7.0, 2.0, 5.0] 
+
+get_y value is 7.0 
+after_item called on 8.0 
+
+after_item called on [nan, 4.0, 2.0, 3.0, 5.0, 7.0, nan, nan, nan] 
+
+before_batch called on [([3.0, 8.0, 6.0, 1.0, 9.0, 4.0, 7.0, 2.0, 5.0], 8.0)] 
+
+
+after_item called on 7.0 
+
+before_batch called on [([7.0, 5.0, 1.0, 8.0, 6.0, 2.0, 4.0, 3.0, 9.0], 6.0), ([nan, 4.0, 2.0, 3.0, 5.0, 7.0, nan, nan, nan], 7.0)] 
+
+[[5, 2, 8, 6, 7, 1, 3, 9, 4], [6, 9, 3, 2, 4, 8, 1, 5, 7], [4, 1, 7, 5, 3, 9, 2, 8, 6], [8, 7, 5, 4, 1, 3, 9, 6, 2], [1, 6, 9, 7, 2, 5, 8, 4, 3], [2, 3, 4, 9, 8, 6, 5, 7, 1], [7, 5, 1, 8, 6, 2, 4, 3, 9], [9, 4, 2, 3, 5, 7, 6, 1, 8], [3, 8, 6, 1, 9, 4, 7, 2, 5]]
+
+
+Yes you are a fastai...and sudoku...whiz!
+
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Notes">
+<a class="anchor" href="#Notes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Notes<a class="anchor-link" href="#Notes"> </a>
+</h1>
+<p>Below are the notes and summaries that I picked up on as part of doing this Sudoku exercise.</p>
+<h5 id="General-fastai">
+<a class="anchor" href="#General-fastai" aria-hidden="true"><span class="octicon octicon-link"></span></a>General fastai<a class="anchor-link" href="#General-fastai"> </a>
+</h5>
+<ul>
+<li>When first starting a fastai project, its critical to understand that everything leading up to creating a fastai <code>Learner</code> is just <strong>data preparation</strong> to the correct format that a Pytorch model can interpret (in other words, pre-learner tasks are just ETL steps). This may already be obvious to many, but for some reason it took ages to get through my head.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="DataLoaders">
+<a class="anchor" href="#DataLoaders" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataLoaders<a class="anchor-link" href="#DataLoaders"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Their sole objective is to output a <strong>list of tuples</strong><ul>
+<li>where for each item in the list, the first element of the tuple is a single <code>x</code> value (independent variable), and the second element of the tuple is the <code>y</code> value (the dependent variable)<ul>
+<li>In creating a <code>DataLoaders</code> object, we apply transforms to the data either as we are fetching the item (called <code>item_tfms</code>) or after the batch is collated (called <code>batch_tfms</code>)</li>
+</ul>
+</li>
+<li>Note - when batched, all Xs and all Ys are <strong>stacked into a single tuple</strong>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="TfmdDL---why-did-we-use-this-class?">
+<a class="anchor" href="#TfmdDL---why-did-we-use-this-class?" aria-hidden="true"><span class="octicon octicon-link"></span></a>TfmdDL - why did we use this class?<a class="anchor-link" href="#TfmdDL---why-did-we-use-this-class?"> </a>
+</h5>
+<ul>
+<li>Inherits all of the transforms and callbacks applied to the <code>DataLoaders</code> object and applies them to an iterable.<ul>
+<li>In theory, you could prevent fastai from using this class when creating a <code>DataLoaders</code> object by suppling an alternative class to the <code>dl_type</code> argument.</li>
+</ul>
+</li>
+<li>Under the hood, <strong>this is the major class in fastai data preparation</strong> that ultimately structures the data for use in the <code>Learner</code>
+</li>
+</ul>
+<h5 id="Collate">
+<a class="anchor" href="#Collate" aria-hidden="true"><span class="octicon octicon-link"></span></a>Collate<a class="anchor-link" href="#Collate"> </a>
+</h5>
+<ul>
+<li>I never understood this word even though I saw it everywhere. <code>fa_collate</code> and the Pytorch <code>default_collate</code> are the actual functions that create a batch. If they aren't applied, each "batch" would just be one tuple, where the first argument is a single input and the second argument is a single target. <ul>
+<li>When these functions are used, they "Puts each data field into a tensor with outer dimension batch size". In other words, they stack items of batches together - one stack for inputs, one stack for targets</li>
+<li>These functions are what are called if you do not specify the <code>create_batch</code> callback</li>
+</ul>
+</li>
+</ul>
+<h5 id="DataBlock">
+<a class="anchor" href="#DataBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataBlock<a class="anchor-link" href="#DataBlock"> </a>
+</h5>
+<ul>
+<li>Prepackaged transforms for the most common types of data transformations in deep learning</li>
+</ul>
+<h5 id="Transform">
+<a class="anchor" href="#Transform" aria-hidden="true"><span class="octicon octicon-link"></span></a>Transform<a class="anchor-link" href="#Transform"> </a>
+</h5>
+<ul>
+<li>Converting the data (inputs/x and targets/y) into a format the computer understands and can perform matrix math on - tensors<ul>
+<li>For deep learning, a transform directly or indirectly (via a <strong><code>Pipeline</code></strong>) converts a piece of data into a tensor</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">??</span>DataLoaders
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="DataBlock">
+<a class="anchor" href="#DataBlock" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataBlock<a class="anchor-link" href="#DataBlock"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>fastai link: <a href="https://docs.fast.ai/data.block.html">https://docs.fast.ai/data.block.html</a></p>
+<p>A <code>DataBlock</code> is the quickest way to create a <code>DataLoaders</code> object; it is the most <em>abstracted</em> class from pure Pytorch. It should be used first when there is not much customization needed.</p>
+<p>Remember - blocks are just <strong>pre-packaged transforms</strong>; they exist for the most common types of ML tasks (ie. <code>CategoryBlock</code>, <code>ImageBlock</code>)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Blocks">
+<a class="anchor" href="#Blocks" aria-hidden="true"><span class="octicon octicon-link"></span></a>Blocks<a class="anchor-link" href="#Blocks"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We just said blocks are pre-packaged transforms. What does this really mean?</p>
+<p>Let's look at 2 common blocks: <code>ImageBlock</code> and <code>CategoryBlock</code></p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>CategoryBlock<span class="o">??</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>ImageBlock<span class="o">??</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is interesting. Notice how there are no class methods - the only thing this class does is <strong>store transforms</strong> as attributes.</p>
+<p>Now take a look back at <code>ImageBlock</code> and <code>CategoryBlock</code> - these are both <strong>functions</strong> and not classes (despite them using class formatting)</p>
+<p>To recap:
+We know that blocks are to store transforms, and they all subclass <code>TransformBlock</code>. We have seen they are the first argument (generally) of the DataBlock API.</p>
+<blockquote>
+<p>Note this term "DataBlock API" confused me for a while - in fact for a long time the term API in general caused confusion. To me, API in this sense just means a <em>callable</em> (function, class, url) that <em>abstracts</em> more complex code</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span>DataBlock<span class="o">??</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <code>L()</code> object have the <code>attrgot</code> method with is how fastai can extract class atributes from a <code>TransformBlock</code>. This took me forever to understand</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Getters">
+<a class="anchor" href="#Getters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getters<a class="anchor-link" href="#Getters"> </a>
+</h4>
+<p>While I tried to use this as well, it turns out that <code>getters</code> essentially apply <code>get_x</code> and <code>get_y</code> in a single step. So when would you actually use them instead? A <a href="https://forums.fast.ai/t/fastai-v2-recipes-tips-and-tricks-wiki/64486?u=stantonius">great fastai forum post</a> gave an example of when your <code>get_items</code> function returns a list of tuples (and you subsequently need to extract the first item of each tuple as <code>x</code> and the second item as <code>y</code>)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Mini-Batch-Shuffling">
+<a class="anchor" href="#Mini-Batch-Shuffling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mini-Batch Shuffling<a class="anchor-link" href="#Mini-Batch-Shuffling"> </a>
+</h3>
+<p>A mini-batch by design <strong>shuffles</strong> the data to ensure the model does not overfit when training each mini-batch.</p>
+<p>Without shuffling, each mini-batch may contain similar data (meaning each training step adjustment modifies the model to only learn about that specific type of data, which will slow model training time) or the model may learn based on data order/sequence (which prevents model generalizability, the ultimate goal of a good model).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Next-Steps">
+<a class="anchor" href="#Next-Steps" aria-hidden="true"><span class="octicon octicon-link"></span></a>Next Steps<a class="anchor-link" href="#Next-Steps"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>If I can find proper definitions for each of these functions, then I would like to compare someone's response to these definitions and use a model to see how similar their explanations are</li>
+<li>Would like to add a summary table for all of our notes (had this working with <code>patch_to</code> but was a little messy)</li>
+<li>Come up with a way to supress or decide when to print statements (so that printing doesn't happen in each cell)</li>
+<li>Add some colour to text on the board a) where your guesses are and b) if they are correct or not</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<script type="application/vnd.jupyter.widget-state+json">
+{"1cdf17184caf43d6aa56ff9198d50bbe": {"model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "model_name": "ButtonModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "Show answer", "disabled": false, "icon": "", "layout": "IPY_MODEL_c1f9d0f4138b42eba4cd747676a168c0", "style": "IPY_MODEL_f8698d37783f4685aa910ec3fd0cec54", "tooltip": ""}}, "2fb08448c9164d6ea1c98837dcc8bbdc": {"model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "model_name": "OutputModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_d45d9ee1803a4908b8207b35fab1cadb", "msg_id": "", "outputs": []}}, "3f599e526295405b9621819005b4075d": {"model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "model_name": "ButtonStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "4ba403f580b649c5b082aef7c9fab0af": {"model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "61e47cc24d2d404d9e3ea4f1a3b6ed28": {"model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "65d8add5dd484fe9835d4b69231674e3": {"model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "model_name": "ButtonModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "Show answer", "disabled": false, "icon": "", "layout": "IPY_MODEL_7f1405eae45e48629638a161fdfa8882", "style": "IPY_MODEL_3f599e526295405b9621819005b4075d", "tooltip": ""}}, "689f4e7c6aa74d6c8786d42bf6902e5b": {"model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "model_name": "OutputModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_a0a4cdf6597e40d38ef2e7b5bb94c3ef", "msg_id": "", "outputs": []}}, "73d32b154a1745a29fcca50a19c70bb6": {"model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "model_name": "ButtonModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "Show answer", "disabled": false, "icon": "", "layout": "IPY_MODEL_fdbed2b1e16443169a20896311a1543a", "style": "IPY_MODEL_ab440cfb3bfa4720820c8fa8a3bf333a", "tooltip": ""}}, "7b7cdb8f4b9e40f5b0635799865ab3e0": {"model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "model_name": "ButtonModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ButtonView", "button_style": "", "description": "Show answer", "disabled": false, "icon": "", "layout": "IPY_MODEL_922fba837a164733b8e915cb3412a75c", "style": "IPY_MODEL_bcd9be51d00b4f0eaddd5746ffabe4fe", "tooltip": ""}}, "7f1405eae45e48629638a161fdfa8882": {"model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "922fba837a164733b8e915cb3412a75c": {"model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "a0a4cdf6597e40d38ef2e7b5bb94c3ef": {"model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "ab440cfb3bfa4720820c8fa8a3bf333a": {"model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "model_name": "ButtonStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "bcd9be51d00b4f0eaddd5746ffabe4fe": {"model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "model_name": "ButtonStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "bd4d2fd8b73b4c6994e201e9393236fc": {"model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "model_name": "OutputModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_61e47cc24d2d404d9e3ea4f1a3b6ed28", "msg_id": "", "outputs": []}}, "c1f9d0f4138b42eba4cd747676a168c0": {"model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "cd8d958251b3448d8bbf1de6bf46be07": {"model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "model_name": "OutputModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_4ba403f580b649c5b082aef7c9fab0af", "msg_id": "", "outputs": []}}, "d45d9ee1803a4908b8207b35fab1cadb": {"model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "f8698d37783f4685aa910ec3fd0cec54": {"model_module": "@jupyter-widgets/controls", "model_module_version": "1.5.0", "model_name": "ButtonStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ButtonStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "button_color": null, "font_weight": ""}}, "fdbed2b1e16443169a20896311a1543a": {"model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}}
+</script>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="stantonius/home"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/home/fastai/2022/10/02/_05_20-fastai_sudoku_notes.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/home/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/home/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/home/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Posts related to AI, IoT, Home Labs, Flutter, GCP, Privacy-Enhancing Tech...the list grows every week.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/stantonius" target="_blank" title="stantonius"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/thecraigman22" target="_blank" title="thecraigman22"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
