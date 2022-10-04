@@ -7,7 +7,7 @@ branch: master
 badges: true
 comments: true
 author: Craig Stanton
-hide: false
+hide: true
 categories: [fastai]
 nb_path: _notebooks/2022-05-20-fastai_sudoku_notes.ipynb
 layout: notebook
