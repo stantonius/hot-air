@@ -1,6 +1,6 @@
 ---
-title: "A slice of internet security"
-description: "Overview of security-related items related to my home lab build"
+title: "SSH & SSL"
+description: "Overview of SSH & SSL inspired by my home lab build"
 layout: post
 toc: true
 comments: true
@@ -24,9 +24,10 @@ metadata_key2: metadata_value2
 ### Deeper dive on SSH How
 
 **Client-server model**: the client initiates connection with the server, which is always listening to **TCP** connection attempts on the ssh port (22). The following is a very basic overview of the steps once an SSH request is triggered:
-	1. Both server and client make sure they *can* communicate with eachother (ie. they both use the same protocols and standards). This is usually never an issue if you are using updated OSes
-	2. A combination of asymmetric and symmetric encryption mechanisms ensure all future comms between the client and server are encrypted. The beauty of this approach is that the encryption keys are unique for each new connection, meaning any new session has new keys to encrypt the data
-	3. Once the above processes are approved, the **user must authenticate themselves**. This can be done either via password or *another pair* of asymmetric keys that identify you to the server.
+
+1. Both server and client make sure they *can* communicate with eachother (ie. they both use the same protocols and standards). This is usually never an issue if you are using updated OSes
+2. A combination of asymmetric and symmetric encryption mechanisms ensure all future comms between the client and server are encrypted. The beauty of this approach is that the encryption keys are unique for each new connection, meaning any new session has new keys to encrypt the data
+3. Once the above processes are approved, the **user must authenticate themselves**. This can be done either via password or *another pair* of asymmetric keys that identify you to the server.
 
 > Steps 1 & 2 are not something we typically concern ourselves with; these are steps that are handled behind the scenes between the two computers. We usually only engage in step 3 when providing a password
 
@@ -39,6 +40,8 @@ A great and simple guide [here](https://www.hostinger.com/tutorials/ssh/how-to-s
 	* **NEVER** send the private file **anywhere** (it always stays local)
 * Run `ssh-copy-id user@serverip` to securely copy your **public key** to the server
 	* You will need to log in using a password to do this (possibly as `root` user)
+
+> Tip: Ever tried to SSH into a VM and you get an identity/fingerprint error? You can use `ssh-keygen -R [IP_ADDRESS]` to remove the address and figerprint from a saved value
 
 
 ## SSL
