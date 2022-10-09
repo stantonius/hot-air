@@ -4,19 +4,19 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>A slice of internet security | The Coding Hobbyist</title>
+<title>SSH &amp; SSL | The Coding Hobbyist</title>
 <meta name="generator" content="Jekyll v4.1.1" />
-<meta property="og:title" content="A slice of internet security" />
+<meta property="og:title" content="SSH &amp; SSL" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="Overview of security-related items related to my home lab build" />
-<meta property="og:description" content="Overview of security-related items related to my home lab build" />
+<meta name="description" content="Overview of SSH &amp; SSL inspired by my home lab build" />
+<meta property="og:description" content="Overview of SSH &amp; SSL inspired by my home lab build" />
 <link rel="canonical" href="https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html" />
 <meta property="og:url" content="https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html" />
 <meta property="og:site_name" content="The Coding Hobbyist" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2022-07-22T00:00:00-05:00" />
 <script type="application/ld+json">
-{"datePublished":"2022-07-22T00:00:00-05:00","url":"https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html","@type":"BlogPosting","headline":"A slice of internet security","dateModified":"2022-07-22T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html"},"description":"Overview of security-related items related to my home lab build","@context":"https://schema.org"}</script>
+{"datePublished":"2022-07-22T00:00:00-05:00","url":"https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html","@type":"BlogPosting","headline":"SSH &amp; SSL","dateModified":"2022-07-22T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/ssh/ssl/computer_science/2022/07/22/Net_security.html"},"description":"Overview of SSH &amp; SSL inspired by my home lab build","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/home/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://stantonius.github.io/home/feed.xml" title="The Coding Hobbyist" /><!-- the google_analytics_id gets auto inserted from the config file -->
 
@@ -102,7 +102,7 @@ window.onload = wrap_img;
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">A slice of internet security</h1><p class="page-description">Overview of security-related items related to my home lab build</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-07-22T00:00:00-05:00" itemprop="datePublished">
+    <h1 class="post-title p-name" itemprop="name headline">SSH &amp; SSL</h1><p class="page-description">Overview of SSH & SSL inspired by my home lab build</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-07-22T00:00:00-05:00" itemprop="datePublished">
         Jul 22, 2022
       </time>
        • <span class="read-time" title="Estimated read time">
@@ -185,10 +185,13 @@ window.onload = wrap_img;
 <h3 id="deeper-dive-on-ssh-how">
 <a class="anchor" href="#deeper-dive-on-ssh-how" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deeper dive on SSH How</h3>
 
-<p><strong>Client-server model</strong>: the client initiates connection with the server, which is always listening to <strong>TCP</strong> connection attempts on the ssh port (22). The following is a very basic overview of the steps once an SSH request is triggered:
-	1. Both server and client make sure they <em>can</em> communicate with eachother (ie. they both use the same protocols and standards). This is usually never an issue if you are using updated OSes
-	2. A combination of asymmetric and symmetric encryption mechanisms ensure all future comms between the client and server are encrypted. The beauty of this approach is that the encryption keys are unique for each new connection, meaning any new session has new keys to encrypt the data
-	3. Once the above processes are approved, the <strong>user must authenticate themselves</strong>. This can be done either via password or <em>another pair</em> of asymmetric keys that identify you to the server.</p>
+<p><strong>Client-server model</strong>: the client initiates connection with the server, which is always listening to <strong>TCP</strong> connection attempts on the ssh port (22). The following is a very basic overview of the steps once an SSH request is triggered:</p>
+
+<ol>
+  <li>Both server and client make sure they <em>can</em> communicate with eachother (ie. they both use the same protocols and standards). This is usually never an issue if you are using updated OSes</li>
+  <li>A combination of asymmetric and symmetric encryption mechanisms ensure all future comms between the client and server are encrypted. The beauty of this approach is that the encryption keys are unique for each new connection, meaning any new session has new keys to encrypt the data</li>
+  <li>Once the above processes are approved, the <strong>user must authenticate themselves</strong>. This can be done either via password or <em>another pair</em> of asymmetric keys that identify you to the server.</li>
+</ol>
 
 <blockquote>
   <p>Steps 1 &amp; 2 are not something we typically concern ourselves with; these are steps that are handled behind the scenes between the two computers. We usually only engage in step 3 when providing a password</p>
@@ -216,6 +219,10 @@ window.onload = wrap_img;
     </ul>
   </li>
 </ul>
+
+<blockquote>
+  <p>Tip: Ever tried to SSH into a VM and you get an identity/fingerprint error? You can use <code class="language-plaintext highlighter-rouge">ssh-keygen -R [IP_ADDRESS]</code> to remove the address and figerprint from a saved value</p>
+</blockquote>
 
 <h2 id="ssl">
 <a class="anchor" href="#ssl" aria-hidden="true"><span class="octicon octicon-link"></span></a>SSL</h2>
