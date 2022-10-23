@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Converting an old PC to an OpenWRT router | The Coding Hobbyist</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Converting an old PC to an OpenWRT router" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Setting up an x86 OpenWRT router and adding a non-OpenWRT Access Point" />
+<meta property="og:description" content="Setting up an x86 OpenWRT router and adding a non-OpenWRT Access Point" />
+<link rel="canonical" href="https://stantonius.github.io/home/networking/2022/10/23/OpenWRT.html" />
+<meta property="og:url" content="https://stantonius.github.io/home/networking/2022/10/23/OpenWRT.html" />
+<meta property="og:site_name" content="The Coding Hobbyist" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-10-23T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2022-10-23T00:00:00-05:00","url":"https://stantonius.github.io/home/networking/2022/10/23/OpenWRT.html","@type":"BlogPosting","headline":"Converting an old PC to an OpenWRT router","dateModified":"2022-10-23T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/networking/2022/10/23/OpenWRT.html"},"description":"Setting up an x86 OpenWRT router and adding a non-OpenWRT Access Point","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/home/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://stantonius.github.io/home/feed.xml" title="The Coding Hobbyist" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYM0GN6Q4W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZYM0GN6Q4W');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/home/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/home/">The Coding Hobbyist</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/home/about/">About Me</a><a class="page-link" href="/home/search/">Search</a><a class="page-link" href="/home/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Converting an old PC to an OpenWRT router</h1><p class="page-description">Setting up an x86 OpenWRT router and adding a non-OpenWRT Access Point</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-10-23T00:00:00-05:00" itemprop="datePublished">
+        Oct 23, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      6 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/home/categories/#networking">networking</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#background">Background</a></li>
+<li class="toc-entry toc-h2"><a href="#wiping-the-hardrive">Wiping the hardrive</a></li>
+<li class="toc-entry toc-h2"><a href="#creating-the-usb-installation-media">Creating the USB installation media</a></li>
+<li class="toc-entry toc-h2"><a href="#running-openwrt-from-the-usb-media">Running OpenWRT from the USB media</a></li>
+<li class="toc-entry toc-h2"><a href="#formatting-the-ssd">Formatting the SSD</a></li>
+<li class="toc-entry toc-h2"><a href="#migrating-the-partitions-from-the-usb-to-ssd">Migrating the partitions from the USB to SSD</a></li>
+<li class="toc-entry toc-h2"><a href="#getting-wan">Getting WAN</a></li>
+<li class="toc-entry toc-h2"><a href="#adding-other-ports-to-lan">Adding other ports to LAN</a></li>
+<li class="toc-entry toc-h2"><a href="#adding-a-wifi-access-point">Adding a WiFi Access Point</a></li>
+</ul><h2 id="background">
+<a class="anchor" href="#background" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background</h2>
+<ul>
+  <li>I purchased a <a href="https://www.ebay.ca/itm/125556152754">Lenovo ThinkCentre M910s i5-6500 8GB 256GB SSD Small Form Factor SFF Desktop PC</a> as the PC to run OpenWRT. Yes, it is massively overkill for a router. However I needed a PC with a PCIe slot to add in a 4-port NIC, and I’d rather have performance overkill than underkill.</li>
+  <li>I added a 4-port Intel network card (specifically an HP NC365T Intel i340-T4 Quad Port Network Card Adapter) to the PCIe slot before I installed any OS. I thought this might have been a mistake as I was expecting to have to install drivers, however OpenWRT recognized this NIC immediately and no additional configuration was required.</li>
+</ul>
+
+<h2 id="wiping-the-hardrive">
+<a class="anchor" href="#wiping-the-hardrive" aria-hidden="true"><span class="octicon octicon-link"></span></a>Wiping the hardrive</h2>
+<ul>
+  <li>I used the BIOS to wipe the drive. However if I were to do it again, I would use a <a href="https://gparted.org/liveusb.php">GParted Live USB</a> to wipe the disk as you get visual confirmation of what you are doing including whether there are any other partitions on the drive. The only reason why I did not take this approach (which I have in the past) is because I was using a Macbook as my workstation during the setup (creating a GParted USB is possible on a Mac but is more complicated).</li>
+</ul>
+
+<h2 id="creating-the-usb-installation-media">
+<a class="anchor" href="#creating-the-usb-installation-media" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating the USB installation media</h2>
+<ul>
+  <li>If you are following along with the <a href="https://openwrt.org/docs/guide-user/installation/openwrt_x86">x86 installation instructuons</a>, they mention the <code class="language-plaintext highlighter-rouge">ext4-combined.img.gz</code> vs the <code class="language-plaintext highlighter-rouge">ext-combined-efi.img.gz</code> image files (none of the other images made sense for our use case). Most online tutorials do not mention the <code class="language-plaintext highlighter-rouge">efi</code> version, therefore it must be relatively new. I ended up using the “old” <code class="language-plaintext highlighter-rouge">ext4-combined.img.gz</code> - but this was a mistake.</li>
+  <li>In order to get the <code class="language-plaintext highlighter-rouge">ext4-combined.img.gz</code> working, I had to disable Safe Boot set UEFI boot to Legacy in the BIOS, which took me a long time to figure out.</li>
+  <li>According to <a href="https://openwrt.org/docs/guide-developer/uefi-bootable-image">the docs</a>:
+    <blockquote>
+      <p>UEFI boot has been required for years now, boards that only support UEFI are common, and Intel has stated back in 2017 that “legacy” BIOS will no longer be supported after 2020.</p>
+    </blockquote>
+  </li>
+  <li>I think the only reason I was able to configure the BIOS this way is because the system is 6+ years old and has an older BIOS; I assume this configuration would not be possible on newer machines. Therefore if I were to do it over again, I would use the <code class="language-plaintext highlighter-rouge">ext-combined-efi.img.gz</code> image - this <em>should</em> avoid having to set the BIOS as described.</li>
+</ul>
+
+<h2 id="running-openwrt-from-the-usb-media">
+<a class="anchor" href="#running-openwrt-from-the-usb-media" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running OpenWRT from the USB media</h2>
+<ul>
+  <li>So long as the USB is sufficiently high in the boot priority BIOS setting, OpenWRT will run when you start the machine after inserting the USB. However as mentioned in the <a href="https://openwrt.org/docs/guide-user/installation/openwrt_x86">x86 installation instructions</a>, you are required to move the boot and disk partitions (OpenWRT has these two partitions from the image we downloaded) to the machine’s permanent disk.</li>
+  <li>I faced two problems trying to do this:
+    <ol>
+      <li>The SSD was not formatted corrently</li>
+      <li>Migrating the partitions from the USB to the SSD did not work - the SSD partitions became corrupted.</li>
+    </ol>
+  </li>
+</ul>
+
+<h2 id="formatting-the-ssd">
+<a class="anchor" href="#formatting-the-ssd" aria-hidden="true"><span class="octicon octicon-link"></span></a>Formatting the SSD</h2>
+<ul>
+  <li>There are <a href="https://openwrt.org/docs/guide-user/storage/usb-drives#create_a_partition_on_the_usb_disk">instructions on the OpenWRT site</a> that describe how to format the SSD. It took me a while to realize that because Windows was installed on this SSD previously, the disk <em>was not formatted correclly</em>.</li>
+  <li>As long as you follow the instructions linked above, you will format the SSD correctly while running OpenWRT on the USB. However in hindsight this was more work than it needed to be. If I had used a tool like GParted, I could have formatted this disk to be an <code class="language-plaintext highlighter-rouge">ext4</code> filesystem after wiping the disk.</li>
+</ul>
+
+<h2 id="migrating-the-partitions-from-the-usb-to-ssd">
+<a class="anchor" href="#migrating-the-partitions-from-the-usb-to-ssd" aria-hidden="true"><span class="octicon octicon-link"></span></a>Migrating the partitions from the USB to SSD</h2>
+<ul>
+  <li>I first noticed the corruption when I tried to boot the newly flashed OpenWRT router without the USB. I quickly found out that I couldn’t edit any of the files - everything on the SSD was <strong>read only</strong>. A quick search identified that the likely cause was disk corruption.</li>
+  <li>After corrupting the disk, I actually decided against trying to migrate the files again. Instead, I followed <a href="https://forum.openwrt.org/t/copying-openwrt-to-new-disk/61020/2">this forum reply</a> and just downloaded the image to the SSD <em>while running OpenWRT on the USB drive</em>.</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://downloads.openwrt.org/releases/22.03.2/targets/x86/64/openwrt-22.03.2-x86-64-generic-ext4-combined.img.gz
+gzip -d -c openwrt-22.03.2-x86-64-generic-ext4-combined.img.gz | dd of=/dev/sda bs=1M
+</code></pre></div></div>
+
+<ul>
+  <li>While this meant any settings I had configured via LUCI were reset, it was worth it to ensure the system was set up correctly.</li>
+  <li>Note that again, if we had a GParted USB drive, we could have done the <code class="language-plaintext highlighter-rouge">wget</code> within this Linux environment and not had to run OpenWRT just to download OpenWRT on another drive.</li>
+</ul>
+
+<h2 id="getting-wan">
+<a class="anchor" href="#getting-wan" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting WAN</h2>
+<ul>
+  <li>Because I now had 5 ethernet ports (1 embedded port, 4 from the installed NIC), OpenWRT seemed to randomly assigned which port was the WAN port. In order to identify which one was the WAN, you just try each until ping works (or the shell shows you a message that you are conencted to the internet, but I forget what this output message was)</li>
+</ul>
+
+<h2 id="adding-other-ports-to-lan">
+<a class="anchor" href="#adding-other-ports-to-lan" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding other ports to LAN</h2>
+<ul>
+  <li>By default, only one other port is enabled. In order to add the other ports, you must edit the <code class="language-plaintext highlighter-rouge">br-lan</code> (default LAN that OpenWRT creates) and <strong>add multiple <code class="language-plaintext highlighter-rouge">eth</code> ports</strong> to this network.</li>
+</ul>
+
+<h2 id="adding-a-wifi-access-point">
+<a class="anchor" href="#adding-a-wifi-access-point" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding a WiFi Access Point</h2>
+<ul>
+  <li>This concept took me the longest to figure out. If you search for OpenWRT + access point, <em>almost all</em> of the posts refer to WiFi devices <em>that have OpenWRT installed</em> in addition to having OpenWRT installed on the main router. However my use case was to leverage a <strong>non-OpenWRT WiFi router as a “dumb” access point for the x86 OpenWRT router</strong>.</li>
+  <li>Maybe for some this was just obvious, but there were two key points that I needed to figure out:
+    <ol>
+      <li>You need to set your non-OpenWRT WiFi router as an Access Point. You do this by logging into the router and changing its settings (this varies by device)</li>
+    </ol>
+    <ol>
+      <li>It was only possible to change the router to Access Point mode after temporarily reverting it back as the primary router.</li>
+      <li>Without putting the old router in Access Point mode, it <em>did not request a local IP address from the OpenWRT DHCP server</em> because <em>DHCP was still enabled on this old device</em>.
+        <ol>
+          <li>Connecting any device to a LAN port means that device is just an extension of that local network. Therefore, connecting a WiFi router in Access Point mode simply converts wireless traffic to wired traffic on the LAN.</li>
+        </ol>
+      </li>
+      <li>Contrary to what I assumed, you use <strong>a LAN port</strong> on the access point device, and not its WAN port. Therefore, there is a connection from a LAN port on the OpenWRT router and a LAN port on the access point.</li>
+      <li>Restart the ISP modem (see below)</li>
+    </ol>
+  </li>
+  <li>Note that currently (and maybe always?) we still set the WiFi network SSID and password by connecting to the WiFi device. However note that its <strong>ip address has changed</strong> - it is no longer <code class="language-plaintext highlighter-rouge">X.X.X.1</code>, since our new router has this local IP address. It has a unique local IP address provided by the DHCP on our new OpenWRT router.</li>
+</ul>
+
+<blockquote>
+  <p>When in doubt, reset (ie. unplug and re-plug) your ISP modem to ensure your new router is recognized by the ISP modem. I can’t stress this enough - even though it is painful because the resetting takes so long, this step is needed to ensure the two devices (ISP modem and OpenWRT router) recognize eachother</p>
+</blockquote>
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="stantonius/home"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/home/networking/2022/10/23/OpenWRT.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/home/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/home/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/home/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Posts related to AI, IoT, Home Labs, Flutter, GCP, Privacy-Enhancing Tech...the list grows every week.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/stantonius" target="_blank" title="stantonius"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/thecraigman22" target="_blank" title="thecraigman22"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
