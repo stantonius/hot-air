@@ -108,7 +108,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      6 min read
+      9 min read
     
 </span></p>
 
@@ -134,6 +134,14 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h2"><a href="#getting-wan">Getting WAN</a></li>
 <li class="toc-entry toc-h2"><a href="#adding-other-ports-to-lan">Adding other ports to LAN</a></li>
 <li class="toc-entry toc-h2"><a href="#adding-a-wifi-access-point">Adding a WiFi Access Point</a></li>
+<li class="toc-entry toc-h2"><a href="#resizing-the-openwrt-rootfs-partition">Resizing the OpenWRT rootfs Partition</a></li>
+<li class="toc-entry toc-h2"><a href="#setting-up-adguard">Setting up Adguard</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#dns-interception">DNS Interception</a></li>
+<li class="toc-entry toc-h3"><a href="#interface-dhcp-settings">Interface DHCP Settings</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#next-steps">Next Steps</a></li>
 </ul><h2 id="background">
 <a class="anchor" href="#background" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background</h2>
 <ul>
@@ -232,6 +240,49 @@ gzip -d -c openwrt-22.03.2-x86-64-generic-ext4-combined.img.gz | dd of=/dev/sda 
 <blockquote>
   <p>When in doubt, reset (ie. unplug and re-plug) your ISP modem to ensure your new router is recognized by the ISP modem. I can’t stress this enough - even though it is painful because the resetting takes so long, this step is needed to ensure the two devices (ISP modem and OpenWRT router) recognize eachother</p>
 </blockquote>
+
+<h2 id="resizing-the-openwrt-rootfs-partition">
+<a class="anchor" href="#resizing-the-openwrt-rootfs-partition" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resizing the OpenWRT rootfs Partition</h2>
+
+<p>I ended up using an old Windows laptop to create my GParted bootable USB. It was then straightorward to adjust the <code class="language-plaintext highlighter-rouge">rootfs</code> partition size to 150 GB (way more than what is needed). This was needed to ensure any apps and log files didn’t take up too much disk space to the point that the router would not start anymore.</p>
+
+<h2 id="setting-up-adguard">
+<a class="anchor" href="#setting-up-adguard" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up Adguard</h2>
+
+<p>A good starting pont for setting up Adguard on OpenWRT is <a href="https://www.youtube.com/watch?v=Q-xDtCxnD0Q&amp;t=1510s">this video - see chapter 4 video marker</a>. This video covers how to update your system so that the primary DNS server is Adguard, which then forwards DNS requests to dnsmasq. Importantly Marc covers the <em>sequence</em> that this needs to be done.</p>
+
+<blockquote>
+  <p>If you screw up the Adguard install like I did, completely remove Aguard from the router <a href="https://openwrt.org/docs/guide-user/services/dns/adguard-home">using the instructions</a>. Then reboot the router and reinstall Adguard</p>
+</blockquote>
+
+<p>If you follow all of these steps, you still may run into DNS issues like I did. Essentially, most of the devices on the network required manually setting the DNS - it seemed that Adguard <em>was not advertising</em> as the DNS server despite listening on Port 53. Therefore I made 2  additional setting changes.</p>
+
+<h3 id="dns-interception">
+<a class="anchor" href="#dns-interception" aria-hidden="true"><span class="octicon octicon-link"></span></a>DNS Interception</h3>
+
+<p>I had read that some devices attempt to use their own DNS protocols despite the router providing one. I therefore set up <a href="https://openwrt.org/docs/guide-user/services/dns/adguard-home">DNS Interception</a> by editing the IP tables to route all traffic requests on Port 53 to this router (irrespective of their destination DNS IP address). This by itself didn’t fix the DNS advertising issue, but it seemed like a good idea to implement anyway.</p>
+
+<h3 id="interface-dhcp-settings">
+<a class="anchor" href="#interface-dhcp-settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interface DHCP Settings</h3>
+
+<p>A great <a href="https://forum.openwrt.org/t/openwrt-adguard-home-101-dnsmasq/110864">wiki</a> on using OpenWRT + Adguard + DNSMASQ contained a lot of good information. In particular, <a href="https://forum.openwrt.org/t/openwrt-adguard-home-101-dnsmasq/110864/81">this post</a> had the ultimate solution: updating the <em>interface</em> DHCP settings (and not the DHCP settings on the router)</p>
+
+<p>What that meant was going to Network &gt; Interfaces &gt; LAN &gt; Edit &gt; DHCP Server &gt; Advanced Settings. Here you can set the DHCP-Options filed to your DNS server (which annoyingly in this setup is the IP address of this very router). Don’t forget to add a <code class="language-plaintext highlighter-rouge">6</code>  and a <code class="language-plaintext highlighter-rouge">3</code>in front of the IP addresses like <code class="language-plaintext highlighter-rouge">6,192.168.0.1</code> and <code class="language-plaintext highlighter-rouge">3,192.168.0.1</code>. I don’t know why this was required, but it worked - all devices now found the DNS server without any special setup.</p>
+
+<h2 id="next-steps">
+<a class="anchor" href="#next-steps" aria-hidden="true"><span class="octicon octicon-link"></span></a>Next Steps</h2>
+
+<p>This is a good and usable setup as it is - we have a speedy custom router that routes all DNS traffic through Adguard. As it stands, this is the best internet setup I’ve had at home (I think the internet speed has actually “increased” due to the absence of ads traffic). However there are two additional features I want to have available:</p>
+
+<ol>
+  <li>Configure the upstream DNS server to use <strong>authoratative</strong> and <strong>root</strong> servers</li>
+  <li>Create a VPS-hosted VPN to route/tunnel traffic through in order to:
+    <ol>
+      <li>Hide my IP address</li>
+      <li>Route traffic through the UK (would be via a second VPS as this would be slower for everyday use) in order to easily use the services from when we were living there</li>
+    </ol>
+  </li>
+</ol>
 
 
   </div><!-- from https://github.com/utterance/utterances -->
