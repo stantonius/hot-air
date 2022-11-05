@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>GCP Datastream via VPC | The Coding Hobbyist</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="GCP Datastream via VPC" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Using Datastream to transfer our data from CloudSQL to BigQuery using private IP addresses" />
+<meta property="og:description" content="Using Datastream to transfer our data from CloudSQL to BigQuery using private IP addresses" />
+<link rel="canonical" href="https://stantonius.github.io/home/fastpages/jupyter/2022/10/29/GPC_VPC_Peering_Datastream.html" />
+<meta property="og:url" content="https://stantonius.github.io/home/fastpages/jupyter/2022/10/29/GPC_VPC_Peering_Datastream.html" />
+<meta property="og:site_name" content="The Coding Hobbyist" />
+<meta property="og:image" content="https://stantonius.github.io/home/images/some_folder/your_image.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-10-29T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2022-10-29T00:00:00-05:00","url":"https://stantonius.github.io/home/fastpages/jupyter/2022/10/29/GPC_VPC_Peering_Datastream.html","@type":"BlogPosting","image":"https://stantonius.github.io/home/images/some_folder/your_image.png","headline":"GCP Datastream via VPC","dateModified":"2022-10-29T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://stantonius.github.io/home/fastpages/jupyter/2022/10/29/GPC_VPC_Peering_Datastream.html"},"description":"Using Datastream to transfer our data from CloudSQL to BigQuery using private IP addresses","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/home/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://stantonius.github.io/home/feed.xml" title="The Coding Hobbyist" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYM0GN6Q4W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZYM0GN6Q4W');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/home/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/home/">The Coding Hobbyist</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/home/about/">About Me</a><a class="page-link" href="/home/search/">Search</a><a class="page-link" href="/home/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">GCP Datastream via VPC</h1><p class="page-description">Using Datastream to transfer our data from CloudSQL to BigQuery using private IP addresses</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-10-29T00:00:00-05:00" itemprop="datePublished">
+        Oct 29, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/home/categories/#fastpages">fastpages</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/home/categories/#jupyter">jupyter</a>
+        
+      
+      </p>
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#objective">Objective</a></li>
+<li class="toc-entry toc-h2"><a href="#background">Background</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#why-datastream">Why Datastream?</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#steps">Steps</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#1-configure-the-cloudsql-instance-for-use-in-datastream">1. Configure the CloudSQL instance for use in Datastream</a></li>
+<li class="toc-entry toc-h3"><a href="#2-create-a-cloud-sql-proxy-vm">2. Create a Cloud SQL Proxy VM</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#a-note-on-service-accounts">A note on Service Accounts</a></li>
+<li class="toc-entry toc-h4"><a href="#configuring-the-cloud-sql-proxy">Configuring the Cloud SQL Proxy</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#3-set-up-the-datastream-connection">3. Set up the Datastream Connection</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#create-private-connectivity">Create Private Connectivity</a></li>
+<li class="toc-entry toc-h4"><a href="#create-connection-profile">Create Connection Profile</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#4-firewall-setup">4. Firewall Setup</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#troubleshooting">Troubleshooting</a></li>
+</ul><h2 id="objective">
+<a class="anchor" href="#objective" aria-hidden="true"><span class="octicon octicon-link"></span></a>Objective</h2>
+
+<ol>
+  <li>Send data from CloudSQL to BigQuery via a private IP address using Datastream.</li>
+</ol>
+
+<h2 id="background">
+<a class="anchor" href="#background" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background</h2>
+
+<p>We use our GCP-managed CloudSQL instance to quickly ingest event data from our app - this is what traditional databases are designed for. However given the volume of data that we store, running <em>queries</em> on this data while keeping it online and available to handle new additons and updates means we are running into performance issues. We could try and scale our CloudSQL VM, but as <a href="https://medium.com/google-cloud/replicate-data-from-bigquery-to-cloud-sql-2b23a08c52b1">this good post</a> argues, this is neither cost effective nor high performing.</p>
+
+<p>As an alternative, GCP has a purpose-built solution for handling large queries - it is appropriately named BigQuery. The downside of this solution is that it is relatively slow compared to our CloudSQL instance - it takes significantly longer to respond to queries or even small updates.</p>
+
+<p>Clearly there is a system design compromise to be made in terms of cost and performance. After evaluating all possibilities, and given the nature of our app (where immediate analytics is not a priority), we have descided to add in BigQuery for our analytics output. As a result we can safely and cost-effectively manage data uploads while deferring analytics responsibility to the slower BigQuery.</p>
+
+<p>But how do we “mirror” the data from CloudSQL to BigQuery? The current best solution I have seen is to use GCP’s Datastream option.</p>
+
+<h3 id="why-datastream">
+<a class="anchor" href="#why-datastream" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why Datastream?</h3>
+
+<p>The answer on how to do properly link CloudSQL to BigQuery wasn’t immediately clear following a Google search. Fortunately I came across <a href="https://gdg.community.dev/events/details/google-gdg-san-diego-presents-practical-datastream-cloudsql-to-bigquery-change-data-capture-on-google-cloud/">a talk from last year</a> that discussed DataStream as being the right solution for this task. The definition of DataSteam was presented as follows:</p>
+
+<blockquote>
+  <p>Datastream from Google is a serverless change data capture and replication service. This allows organizations to replicate data across multiple databases, storage systems and is <strong>especially useful for replicating OLTP (Online Transaction Processing) data in MySQL into an OLAP (Online Analytical Processing) database such as BigQuery</strong>. This talk walks through setting up connection profiles, streams and touch on some useful debugging if things don’t go as planned</p>
+</blockquote>
+
+<h2 id="steps">
+<a class="anchor" href="#steps" aria-hidden="true"><span class="octicon octicon-link"></span></a>Steps</h2>
+
+<p>Unfortunately, the setup of Datastream is rather complicated if we want to use a VPS/private IP addresses to transfer the data. Below are the steps that ultimately worked for me - hopefully they save someone else the pain I went through.</p>
+
+<p>Note I will include some</p>
+
+<h3 id="1-configure-the-cloudsql-instance-for-use-in-datastream">
+<a class="anchor" href="#1-configure-the-cloudsql-instance-for-use-in-datastream" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Configure the CloudSQL instance for use in Datastream</h3>
+
+<p>This step is straightforward. As mentioned <a href="https://cloud.google.com/datastream/docs/configure-your-source-mysql-database#cloudsqlformysql">here</a>, we need to do two things: enable binary logging and create a datastream user using the commands they outline.</p>
+
+<p>The important point to realize here is that we are creating a <strong>new user</strong> called <code class="language-plaintext highlighter-rouge">datastream</code>. In this step you provide a new password. The username and password from this step are <strong>entered in the Datastream private connection setup</strong>.</p>
+
+<h3 id="2-create-a-cloud-sql-proxy-vm">
+<a class="anchor" href="#2-create-a-cloud-sql-proxy-vm" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Create a Cloud SQL Proxy VM</h3>
+
+<p>This is one of the confusing steps for me. <a href="https://cloud.google.com/datastream/docs/private-connectivity">The docs</a> describe the overall reasoning for needing a Cloud SQL Proxy to connect to our CloudSQL instance. However there are a few takeaway points that I picked up here.</p>
+
+<ol>
+  <li>The CloudSQL instance doesn’t <em>really</em> sit within our VPC. Despite us assigning the Private IP connection when creating/editing our CloudSQL instance, it technically sits on another VPC that Google manages behind the scenes.</li>
+  <li>The Datastream setup <em>also uses its own VPC</em>. As such, we are ultimately creating a <strong>VPC peering</strong> setup between our VPC and the Datastream VPC.</li>
+  <li>I got confused by the diagram in the documentation that suggests there is a proxy server that “sits in front” of the CloudSQL instance. There may be, but this is not something we need to worry about</li>
+</ol>
+
+<p><img src="https://storage.googleapis.com/craigstanton-public-assets/images/vpc/sqlauthproxy_confusion.png" alt="sqlauthproxy_confusion.png"></p>
+
+<p>To simplify - the Datastream connection to CloudSQL must pass through 3 VPCs. It is for this reason that we need a CloudSQL proxy.</p>
+
+<p>As a result, we need to create a VM that sits in our <strong>main VPC</strong>. This can be the smallest VM that GCP allows.</p>
+
+<h4 id="a-note-on-service-accounts">
+<a class="anchor" href="#a-note-on-service-accounts" aria-hidden="true"><span class="octicon octicon-link"></span></a>A note on Service Accounts</h4>
+
+<p>Every VM that is created also has a default Service Account. This service account needs to have the  <code class="language-plaintext highlighter-rouge">Cloud SQL Client</code> role in order for this VM to function as a Cloud SQL Proxy agent.</p>
+
+<p>What I ended up doing was creating a bespoke service account that explicilty has the <code class="language-plaintext highlighter-rouge">Cloud SQL Client</code> role <em>before</em> I created the VM. Then during the VM setup, I selected this SA to be the default service account of the VM. This allowed me to down load the keys for this SA and upload them to the Cloud SQL proxy instance (which is easily done if you SSH into the VM from the GCP console - there is a button at the top of the SSH window that says <code class="language-plaintext highlighter-rouge">Upload Files</code>).</p>
+
+<p>Note that there are others way to authenticate such that the VM is enabled as a Cloud SQL proxy - te method above was just the one I chose.</p>
+
+<h4 id="configuring-the-cloud-sql-proxy">
+<a class="anchor" href="#configuring-the-cloud-sql-proxy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuring the Cloud SQL Proxy</h4>
+
+<p>Once a tiny VM is spun up, we can SSH into the machine and run the commands outlined <a href="https://cloud.google.com/sql/docs/mysql/connect-admin-proxy#install">here</a> in order to install the proxy binary (a runable program). Then to run the proxy, we enter:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ./cloud_sql_proxy <span class="nt">-instances</span><span class="o">=</span><span class="nv">INSTANCE_CONNECTION_NAME</span><span class="o">=</span>tcp:0.0.0.0:3306 <span class="nt">-credential_file</span><span class="o">=</span>PATH_TO_JSON_KEY <span class="se">\</span>
+	  <span class="nt">-ip_address_types</span><span class="o">=</span>PRIVATE
+</code></pre></div></div>
+
+<p>Note:</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">-ip_address_types=PRIVATE</code> is required if there is a Public IP on your CloudSQL instance</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">-credential_file=PATH_TO_JSON_KEY</code>: is the service account key key we uploaded via the console SSH window described bove</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">INSTANCE_CONNECTION_NAME</code>: this is the <strong>instance name</strong> of your database, not its IP</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">=tcp:0.0.0.0:3306</code>: really important to write exactly like this (no spaces), the exception being changing the port for a different database type</li>
+</ul>
+
+<p>Once you start this command, it will run in the background indefninitely</p>
+
+<h3 id="3-set-up-the-datastream-connection">
+<a class="anchor" href="#3-set-up-the-datastream-connection" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Set up the Datastream Connection</h3>
+
+<p>The documentation on how to do this is <a href="https://cloud.google.com/datastream/docs/create-a-private-connectivity-configuration">here</a>. The tricky points that I want to highlight are:</p>
+
+<h4 id="create-private-connectivity">
+<a class="anchor" href="#create-private-connectivity" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Private Connectivity</h4>
+
+<p>In this step you are asked to specify an IP range; <strong>this can be any IP range you want</strong> that a) is within your main VPC and b) is not being used by anything else (including subnets).</p>
+
+<p>This took me a while to understand - by selecting an available IP range within your VPC here, GCP <em>automatically</em> creates a <strong>peering connection</strong> between Datastream and your VPC <em>using this IP range</em>.</p>
+
+<p>This IP range is important to note also when troubleshooting firewall access - you may need to configure your firewall to allow traffic from this new range of IPs</p>
+
+<h4 id="create-connection-profile">
+<a class="anchor" href="#create-connection-profile" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Connection Profile</h4>
+
+<p>Next, when creating the Connection Profile, you are asked for the connection details. Make note of the comments below:</p>
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">hostname</code> is the <strong>internal IP address</strong> of the <strong>Cloud SQL Proxy VM</strong> we set up in Step 2</li>
+  <li>The <code class="language-plaintext highlighter-rouge">port</code> is <code class="language-plaintext highlighter-rouge">3306</code> - which seems bizarre because that is the port on the CloudSQL instance and not on the VM. But remember this Cloud SQL Proxy is effectively a <em>router</em> that forwrds requests to their destination and port.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">username</code> and <code class="language-plaintext highlighter-rouge">password</code> is the <strong>datastream user</strong> we created in Step 1</li>
+</ul>
+
+<p>Finally, the last step in setting up a Connection Profile asks if you want to test the connection. While you can do this, make sure that a) the proxy is up and running and b) the firewall is configured. Having this test connection step here was misleading for me as I had fixes to make in the firewall setup before a connection was possible</p>
+
+<h3 id="4-firewall-setup">
+<a class="anchor" href="#4-firewall-setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Firewall Setup</h3>
+
+<p>As a reminder, we now have a new set of IPs created for network peering from the Datastream, through the Cloud SQL Proxy VM, and onto the Cloud SQL instance. As such, we need to ensure that the firewall for our main VPC:</p>
+
+<ul>
+  <li>Allows ingress traffic <strong>from the datastream peering IP range</strong> we specified above <strong>to the Cloud SQL proxy private IP</strong>
+    <ul>
+      <li>Make sure that if you specify a port, that ingress has access to port <code class="language-plaintext highlighter-rouge">3306</code> (or whatever the database port is)</li>
+    </ul>
+  </li>
+  <li>Also ensure that the private IP address of the Cloud SQL Proxy can reach the CloudSQL instance</li>
+</ul>
+
+<h2 id="troubleshooting">
+<a class="anchor" href="#troubleshooting" aria-hidden="true"><span class="octicon octicon-link"></span></a>Troubleshooting</h2>
+
+<p>If you get an error like the following <code class="language-plaintext highlighter-rouge">(2003 "Can't connect to MySQL server on '192.168.x.x' ([Errno 111] Connection refused)")</code>, it can be for any of the following reasons:</p>
+
+<ul>
+  <li>The username and password in the Datastream connection is wrong</li>
+  <li>The CloudSQL proxy isn;t running with the right parameters
+    <ul>
+      <li>Be careful that you have the <code class="language-plaintext highlighter-rouge">=tcp:0.0.0.0:PORT</code> written exactly like that</li>
+      <li>You have the private IP flag set if there is a public IP for your CloudSQL instance</li>
+    </ul>
+  </li>
+  <li>The firewall rules are misconfigured
+    <ul>
+      <li>Changes to firewall rules seem to take a while to propogate through the communication change. Therefore after changing and still encountering errors, <strong>reset the Cloud SQL proxy VM and restart the proxy</strong>
+</li>
+    </ul>
+  </li>
+</ul>
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="stantonius/home"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/home/fastpages/jupyter/2022/10/29/GPC_VPC_Peering_Datastream.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/home/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/home/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/home/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Posts related to AI, IoT, Home Labs, Flutter, GCP, Privacy-Enhancing Tech...the list grows every week.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/stantonius" target="_blank" title="stantonius"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/thecraigman22" target="_blank" title="thecraigman22"><svg class="svg-icon grey"><use xlink:href="/home/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
